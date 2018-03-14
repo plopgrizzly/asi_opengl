@@ -1,51 +1,39 @@
-# Aldaron's System Interface / OpenGL                                          #
-# Copyright (c) 2018 Jeron Aldaron Lau <jeron.lau@plopgrizzly.com>             #
-# Licensed under the MIT LICENSE                                               #
-#                             _        _                                       #
-#                            /@\——————/@\                                      #
-# .———  .                   |   o    o   |     .————      .            .       #
-# |   | |  .———   .———   .——.     []     .——.  |      .——    ———: ———: | .   . #
-# |   | |  |   |  |   |  \   \   <##>   /   /  |      |   |    /    /  | |   | #
-# |———  |  |   |  |   |   |   ¯        ¯   |   |   -- |   |   /    /   |  \ /  #
-# |     |  |   |  |———    |                |   |    | |   |  /    /    |   |   #
-# |     |   ———   |       |                |    ————  |   | :——— :———  |   |   #
-#                 |        \              /                              __/   #
-#                           ¯————————————¯                                     #
-# Cargo.toml                                                                   #
-
-################################################################################
+# Cargo.toml -- Aldaron's System Interface / OpenGL
+# Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
+# Licensed under the MIT LICENSE
+#                             _        _
+#                            /@\——————/@\
+# .———  .                   |   o    o   |     .————      .            .
+# |   | |  .———   .———   .——.     []     .——.  |      .——    ———: ———: | .   .
+# |   | |  |   |  |   |  \   \   <##>   /   /  |      |   |    /    /  | |   |
+# |———  |  |   |  |   |   |   ¯        ¯   |   |   -- |   |   /    /   |  \ /
+# |     |  |   |  |———    |                |   |    | |   |  /    /    |   |
+# |     |   ———   |       |                |    ————  |   | :——— :———  |   |
+#                 |        \              /                              __/
+#                           ¯————————————¯
 
 [package]
 name = "asi_opengl"
 version = "0.1.0"
 authors = [
-	"Jeron Aldaron Lau <jeron.lau@plopgrizzly.com>"
+	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]
-
-################################################################################
 
 license = "MIT"
 documentation = "https://docs.rs/asi_opengl"
 homepage = "http://plopgrizzly.com/asi_opengl"
 repository = "https://github.com/plopgrizzly/asi_opengl"
 
-################################################################################
-
 readme = "README.md"
-description = "description = "Rust safe bindings for OpenGL / OpenGLES."
+description = "Rust safe bindings for OpenGL / OpenGLES."
 keywords = ["opengl", "opengl-es"]
 categories = ["rendering::graphics-api", "hardware-support",
 	"api-bindings", "rendering", "external-ffi-bindings"]
-
-################################################################################
 
 exclude = [
 	"examples/*", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", ".gitignore",
 	"_config.yml", "ISSUE_TEMPLATE.md", "icon.png", "icon.ico"
 ]
 
-################################################################################
-
 [dependencies]
-
-################################################################################
+libc = "^0.2"
