@@ -171,14 +171,12 @@ impl Lib {
 		if display.is_null() {
 			panic!("EGL: Couldn't load display.");
 		}
-		println!("eglGetDisplay(null)");
 
 		if unsafe {
 			(initialize)(display,ptr::null_mut(),ptr::null_mut())
 		} == 0 {
 			panic!("Couldn't initialize EGL");
 		}
-		println!("eglInitialize(display, null, null)");
 
 		// Config
 		let mut config = ptr::null_mut();
@@ -195,8 +193,6 @@ impl Lib {
 		} == 0 {
 			panic!("Couldn't choose the config");
 		}
-		println!("LOG: eglChooseConfig([EGL_RED_SIZE, 1, EGL_GREEN_SIZE\
-, 1, EGL_BLUE_SIZE, 1, EGL_NONE], 1)");
 
 		if nconfigs == 0 {
 			panic!("No configs!");
@@ -205,7 +201,6 @@ impl Lib {
 		if unsafe { (bind_api)(EGL_OPENGL_ES_API) } == 0 {
 			panic!("Couldn't bind OpenGLES");
 		}
-		println!("LOG: eglBindAPI(EGL_OPENGL_ES_API (0x30A0))");
 
 		// Create an EGL rendering context.
 		let context = unsafe {
@@ -214,8 +209,6 @@ impl Lib {
 					.as_ptr()
 			)
 		};
-		println!("LOG: eglCreateContext(display, config, null, \
-[EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE])");
 
 		if context.is_null() {
 			panic!("Couldn't create EGL rendering context.");
@@ -231,9 +224,6 @@ impl Lib {
 		} == 0 {
 			panic!("couldn't get visual id");
 		}
-
-		println!("LOG: eglGetConfigAttrib(display, config, \
-EGL_NATIVE_VISUAL_ID, &mut visual_id");
 
 		(Display {
 			display,
@@ -263,8 +253,6 @@ EGL_NATIVE_VISUAL_ID, &mut visual_id");
 			(create_window_surface)(display.display,
 				display.config, window, ptr::null())
 		};
-		println!("LOG: eglCreateWindowSurface(display, config, \
-window, null)");
 
 		if surface.is_null() {
 			panic!("Couldn't create EGL surface.");
@@ -277,8 +265,6 @@ window, null)");
 		} == 0 {
 			panic!("Couldn't make current");
 		}
-		println!("LOG: eglMakeCurrent(display, surface, surface,\
-context)");
 
 		display.surface = Some(surface);
 	}

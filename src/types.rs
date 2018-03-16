@@ -5,27 +5,27 @@
 use libc;
 
 // GL Types
-pub type GLuint = libc::c_uint;
-pub type GLint = libc::c_int;
-pub type GLenum = libc::c_uint;
-pub type GLboolean = libc::c_uchar;
-pub type GLsizei = libc::c_int;
-pub type GLchar = libc::c_char;
-pub type GLbitfield = libc::c_uint;
-pub type GLsizeiptr = isize;
-pub type GLfloat = libc::c_float;
-pub type GLubyte = libc::c_uchar;
+#[allow(unused)] pub type GLuint = libc::c_uint;
+#[allow(unused)] pub type GLint = libc::c_int;
+#[allow(unused)] pub type GLenum = libc::c_uint;
+#[allow(unused)] pub type GLboolean = libc::c_uchar;
+#[allow(unused)] pub type GLsizei = libc::c_int;
+#[allow(unused)] pub type GLchar = libc::c_char;
+#[allow(unused)] pub type GLbitfield = libc::c_uint;
+#[allow(unused)] pub type GLsizeiptr = isize;
+#[allow(unused)] pub type GLfloat = libc::c_float;
+#[allow(unused)] pub type GLubyte = libc::c_uchar;
 
 // X11 & Android
-pub type EGLSurface = *mut libc::c_void;
-pub type EGLNativeWindowType = *mut libc::c_void;
-pub type EGLNativeDisplayType = *mut libc::c_void;
-pub type EGLDisplay = *mut libc::c_void;
-pub type EGLint = libc::int32_t;
-pub type EGLBoolean = libc::c_uint;
-pub type EGLConfig = *mut libc::c_void;
-pub type EGLContext = *mut libc::c_void;
-pub type EGLenum = libc::c_uint;
+#[allow(unused)] pub type EGLSurface = *mut libc::c_void;
+#[allow(unused)] pub type EGLNativeWindowType = *mut libc::c_void;
+#[allow(unused)] pub type EGLNativeDisplayType = *mut libc::c_void;
+#[allow(unused)] pub type EGLDisplay = *mut libc::c_void;
+#[allow(unused)] pub type EGLint = libc::int32_t;
+#[allow(unused)] pub type EGLBoolean = libc::c_uint;
+#[allow(unused)] pub type EGLConfig = *mut libc::c_void;
+#[allow(unused)] pub type EGLContext = *mut libc::c_void;
+#[allow(unused)] pub type EGLenum = libc::c_uint;
 
 #[allow(unused)] pub const GL_FLOAT: u32 = 0x1406;
 #[allow(unused)] pub const GL_TEXTURE_2D: u32 = 0x0DE1;
@@ -34,6 +34,10 @@ pub type EGLenum = libc::c_uint;
 #[allow(unused)] pub const GL_NEAREST: i32 = 0x2600;
 #[allow(unused)] pub const GL_RGBA: u32 = 0x1908;
 #[allow(unused)] pub const GL_UNSIGNED_BYTE: u32 = 0x1401;
+
+#[allow(unused)] pub const GL_ELEMENT_ARRAY_BUFFER: u32 = 0x8893;
+#[allow(unused)] pub const GL_ARRAY_BUFFER: u32 = 0x8892;
+#[allow(unused)] pub const GL_DYNAMIC_DRAW: u32 = 0x88E8;
 
 #[allow(unused)] pub const EGL_BUFFER_SIZE: i32 = 0x3020;
 #[allow(unused)] pub const EGL_ALPHA_SIZE: i32 = 0x3021;

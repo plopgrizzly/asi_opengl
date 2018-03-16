@@ -6,7 +6,6 @@ extern crate libc;
 
 use std::mem;
 use std::ptr;
-use std::ffi::CStr;
 
 type Void = i8;
 
@@ -50,6 +49,7 @@ impl OpenGLBuilder {
 			clear_color: self.lib.load(b"glClearColor\0"),
 			disable: self.lib.load(b"glDisable\0"),
 			enable: self.lib.load(b"glEnable\0"),
+			#[cfg(debug_assertions)]
 			get_error: self.lib.load(b"glGetError\0"),
 			blend_func_separate:
 				self.lib.load(b"glBlendFuncSeparate\0"),
@@ -59,7 +59,6 @@ impl OpenGLBuilder {
 			create_program: self.lib.load(b"glCreateProgram\0"),
 			attach_shader: self.lib.load(b"glAttachShader\0"),
 			link_program: self.lib.load(b"glLinkProgram\0"),
-			get_string: self.lib.load(b"glGetString\0"),
 			uniform: self.lib.load(b"glGetUniformLocation\0"),
 			gen_buffers: self.lib.load(b"glGenBuffers\0"),
 			bind_buffer: self.lib.load(b"glBindBuffer\0"),
@@ -70,6 +69,8 @@ impl OpenGLBuilder {
 			draw_elements: self.lib.load(b"glDrawElements\0"),
 			use_program: self.lib.load(b"glUseProgram\0"),
 			uniform_mat4: self.lib.load(b"glUniformMatrix4fv\0"),
+			uniform_int1: self.lib.load(b"glUniform1i\0"),
+			uniform_vec1: self.lib.load(b"glUniform1f\0"),
 			bind_texture: self.lib.load(b"glBindTexture\0"),
 			vertex_attrib: self.lib.load(b"glVertexAttribPointer\0"),
 			gen_textures: self.lib.load(b"glGenTextures\0"),
@@ -78,28 +79,20 @@ impl OpenGLBuilder {
 			enable_vattrib: self.lib.load(b"glEnableVertexAttribArray\0"),
 			viewport: self.lib.load(b"glViewport\0"),
 			// Other
-			lib: self.lib,
 			display: self.display,
 		}
 	}
 }
 
-#[link(name = "EGL")]
-#[link(name = "GLESv2")]
-extern "C" {
-	fn glClear(a: GLbitfield) -> ();
-}
-
 /// The OpenGL context.
 pub struct OpenGL {
-	lib: loader::Lib,
 	display: loader::Display,
 	clear: unsafe extern "C" fn(GLbitfield) -> (),
 	clear_color: unsafe extern "C" fn(GLfloat, GLfloat, GLfloat,
 		GLfloat) -> (),
 	disable: unsafe extern "C" fn(GLenum) -> (),
 	enable: unsafe extern "C" fn(GLenum) -> (),
-	get_error: unsafe extern "C" fn() -> GLenum,
+	#[cfg(debug_assertions)] get_error: unsafe extern "C" fn() -> GLenum,
 	blend_func_separate: unsafe extern "C" fn(GLenum, GLenum, GLenum,
 		GLenum) -> (),
 	create_shader: unsafe extern "C" fn(GLenum) -> GLuint,
@@ -109,7 +102,6 @@ pub struct OpenGL {
 	create_program: unsafe extern "C" fn() -> GLuint,
 	attach_shader: unsafe extern "C" fn(GLuint, GLuint) -> (),
 	link_program: unsafe extern "C" fn(GLuint) -> (),
-	get_string: unsafe extern "C" fn(GLenum) -> *const GLubyte,
 	uniform: unsafe extern "C" fn(GLuint, *const GLchar) -> GLint,
 	gen_buffers: unsafe extern "C" fn(GLsizei, *mut GLuint) -> (),
 	bind_buffer: unsafe extern "C" fn(GLenum, GLuint) -> (),
@@ -124,6 +116,8 @@ pub struct OpenGL {
 	use_program: unsafe extern "C" fn(GLuint) -> (),
 	uniform_mat4: unsafe extern "C" fn(GLint, GLsizei, GLboolean,
 		*const GLfloat) -> (),
+	uniform_int1: unsafe extern "C" fn(GLint, GLint) -> (),
+	uniform_vec1: unsafe extern "C" fn(GLint, GLfloat) -> (),
 	bind_texture: unsafe extern "C" fn(GLenum, GLuint) -> (),
 	vertex_attrib: unsafe extern "C" fn(GLuint, GLint, GLenum,
 		GLboolean, GLsizei, *const libc::c_void) -> (),
@@ -143,7 +137,6 @@ impl OpenGL {
 			(self.clear)(0x00000100 | 0x00004000);
 			self.error()
 		}
-		println!("LOG: glClear()");
 	}
 
 	/// Set the color for `clear`.
@@ -152,14 +145,12 @@ impl OpenGL {
 			(self.clear_color)(r, g, b, 1.0);
 			self.error()
 		}
-		println!("LOG: glClearColor()");
 	}
 
 	/// Update the screen
 	pub fn update(&self) {
 		// Swap Display
 		self.display.swap();
-		println!("LOG: Swap()");
 	}
 
 	/// Enable something
@@ -168,7 +159,6 @@ impl OpenGL {
 			(self.enable)(what);
 			self.error()
 		}
-		println!("LOG: glEnable()");
 	}
 
 	/// Disable something
@@ -177,7 +167,6 @@ impl OpenGL {
 			(self.disable)(what);
 			self.error()
 		}
-		println!("LOG: glDisable()");
 	}
 
 	/// Configure blending
@@ -195,7 +184,6 @@ impl OpenGL {
 			);
 			self.error()
 		}
-		println!("LOG: glBlendFuncSeparate()");
 	}
 
 	/// Load a shader program
@@ -222,7 +210,6 @@ impl OpenGL {
 				(self.get_shader)(v_shader,
 					0x8B81 /*GL_COMPILE_STATUS*/,
 					&mut value);
-				println!("E1");
 				self.error();
 
 				if value == 0 {
@@ -302,8 +289,6 @@ impl OpenGL {
 			self.error();
 		}
 
-		println!("LOG: Make Shader()");
-
 		program
 	}
 
@@ -353,8 +338,6 @@ impl OpenGL {
 			(self.gen_buffers)(n as i32, buffers.as_mut_ptr());
 			self.error();
 
-			println!("LOG: glGenBuffers(n {})", n);
-
 			buffers
 		}
 	}
@@ -364,11 +347,9 @@ impl OpenGL {
 		unsafe {
 			(self.bind_buffer)(
 				if is_index_buffer {
-		println!("LOG: glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer {})", buffer);
-					0x8893/*GL_ELEMENT_ARRAY_BUFFER*/
+					GL_ELEMENT_ARRAY_BUFFER
 				} else {
-		println!("LOG: glBindBuffer(GL_ARRAY_BUFFER), buffer {}", buffer);
-					0x8892/*GL_ARRAY_BUFFER*/
+					GL_ARRAY_BUFFER
 				}, buffer);
 			self.error();
 		}
@@ -381,18 +362,14 @@ impl OpenGL {
 		unsafe {
 			(self.buffer_data)(
 				if is_index_buffer {
-		println!("LOG: glBufferData(GL_ELEMENT_ARRAY_BUFFER 0x8893)");
-					0x8893/*GL_ELEMENT_ARRAY_BUFFER*/
+					GL_ELEMENT_ARRAY_BUFFER
 				} else {
-		println!("LOG: glBufferData(GL_ARRAY_BUFFER 0x8892)");
-					0x8892/*GL_ARRAY_BUFFER*/
+					GL_ARRAY_BUFFER
 				}, (data.len() * mem::size_of::<T>()) as isize,
 				data.as_ptr() as *const _,
-				0x88E8/*GL_DYNAMIC_DRAW*/);
+				GL_DYNAMIC_DRAW);
 			self.error();
 		}
-
-
 	}
 
 	// TODO: this actually unsafe because uniforms can only be accessed when
@@ -403,15 +380,29 @@ impl OpenGL {
 			(self.use_program)(shader);
 			self.error();
 		}
-		println!("LOG: glUseProgram(shader {})", shader);
 	}
 
-	/// Set a uniform to a Mat4
+	/// Set a mat4 uniform
 	pub fn set_mat4(&self, uniform: i32, mat4: &[f32; 16]) -> () {
 		unsafe {
-			// set transformation matrix
 			(self.uniform_mat4)(uniform, 1, 0 /*bool: transpose*/,
 				mat4.as_ptr());
+			self.error();
+		}
+	}
+
+	/// Set an int uniform 
+	pub fn set_int1(&self, uniform: i32, int1: i32) -> () {
+		unsafe {
+			(self.uniform_int1)(uniform, int1);
+			self.error();
+		}
+	}
+
+	/// Set a float uniform
+	pub fn set_vec1(&self, uniform: i32, vec1: f32) -> () {
+		unsafe {
+			(self.uniform_vec1)(uniform, vec1);
 			self.error();
 		}
 	}
@@ -425,8 +416,6 @@ impl OpenGL {
 				0x1405 /*GL_UNSIGNED_INT*/, ptr::null());
 			self.error();
 		}
-
-		println!("LOG: glDrawElements(GL_TRIANGLES (0x0004), {}, GL_UNSIGNED_INT (0x1405), null)", n_indices);
 	}
 
 	/// Create a new texture.
@@ -475,8 +464,6 @@ impl OpenGL {
 				0, ptr::null());
 			self.error();
 		}
-
-		println!("LOG: glVertexAttribPointer({}, 4, GL_FLOAT {}, 0, 0, null)", attrib.0, GL_FLOAT);
 	}
 
 	/// Update the viewport.
@@ -485,40 +472,12 @@ impl OpenGL {
 			(self.viewport)(0, 0, w as GLsizei, h as GLsizei);
 			self.error();
 		}
-
-		println!("LOG: glViewport(w {}, h {})", w, h);
 	}
 
-	/// Print out OpenGL version information to the console.
-	pub fn version(&self) {
-/*		const GL_VENDOR : u32 = 0x1F00;
-		const GL_RENDERER : u32 = 0x1F01;
-		const GL_VERSION : u32 = 0x1F02;
-//		const GL_EXTENSIONS : u32 = 0x1F03;
+	#[cfg(not(debug_assertions))]
+	unsafe fn error(&self) { /* Do nothing in release mode for speed. */ }
 
-		let vendor = unsafe {
-			CStr::from_ptr((self.get_string)(GL_VENDOR) as *const _)
-				.to_str().unwrap().to_string()
-		};
-		let renderer = unsafe {
-			CStr::from_ptr((self.get_string)(GL_RENDERER) as *const _)
-				.to_str().unwrap().to_string()
-		};
-		let version = unsafe {
-			CStr::from_ptr((self.get_string)(GL_VERSION) as *const _)
-				.to_str().unwrap().to_string()
-		};
-//		let extensions = unsafe {
-//			CStr::from_ptr((self.get_string)(GL_EXTENSIONS))
-//				.to_str().unwrap().to_string()
-//		};
-
-		println!("Vendor: {}", vendor);
-		println!("Renderer: {}", renderer);
-		println!("Version: {}", version);
-//		println!("Extensions: {}", extensions);*/
-	}
-
+	#[cfg(debug_assertions)]
 	unsafe fn error(&self) {
 		match (self.get_error)() {
 			0 => return, // NO_ERROR
