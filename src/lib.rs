@@ -71,6 +71,9 @@ impl OpenGLBuilder {
 			uniform_mat4: self.lib.load(b"glUniformMatrix4fv\0"),
 			uniform_int1: self.lib.load(b"glUniform1i\0"),
 			uniform_vec1: self.lib.load(b"glUniform1f\0"),
+			uniform_vec2: self.lib.load(b"glUniform2f\0"),
+			uniform_vec3: self.lib.load(b"glUniform3f\0"),
+			uniform_vec4: self.lib.load(b"glUniform4f\0"),
 			bind_texture: self.lib.load(b"glBindTexture\0"),
 			vertex_attrib: self.lib.load(b"glVertexAttribPointer\0"),
 			gen_textures: self.lib.load(b"glGenTextures\0"),
@@ -118,6 +121,11 @@ pub struct OpenGL {
 		*const GLfloat) -> (),
 	uniform_int1: unsafe extern "C" fn(GLint, GLint) -> (),
 	uniform_vec1: unsafe extern "C" fn(GLint, GLfloat) -> (),
+	uniform_vec2: unsafe extern "C" fn(GLint, GLfloat, GLfloat) -> (),
+	uniform_vec3: unsafe extern "C" fn(GLint, GLfloat, GLfloat, GLfloat)
+		-> (),
+	uniform_vec4: unsafe extern "C" fn(GLint, GLfloat, GLfloat, GLfloat,
+		GLfloat) -> (),
 	bind_texture: unsafe extern "C" fn(GLenum, GLuint) -> (),
 	vertex_attrib: unsafe extern "C" fn(GLuint, GLint, GLenum,
 		GLboolean, GLsizei, *const libc::c_void) -> (),
@@ -403,6 +411,31 @@ impl OpenGL {
 	pub fn set_vec1(&self, uniform: i32, vec1: f32) -> () {
 		unsafe {
 			(self.uniform_vec1)(uniform, vec1);
+			self.error();
+		}
+	}
+
+	/// Set a vec2 uniform
+	pub fn set_vec2(&self, uniform: i32, vec: &[f32; 2]) -> () {
+		unsafe {
+			(self.uniform_vec2)(uniform, vec[0], vec[1]);
+			self.error();
+		}
+	}
+
+	/// Set a vec3 uniform
+	pub fn set_vec3(&self, uniform: i32, vec: &[f32; 3]) -> () {
+		unsafe {
+			(self.uniform_vec3)(uniform, vec[0], vec[1], vec[2]);
+			self.error();
+		}
+	}
+
+	/// Set a vec4 uniform
+	pub fn set_vec4(&self, uniform: i32, vec: &[f32; 4]) -> () {
+		unsafe {
+			(self.uniform_vec4)(uniform, vec[0], vec[1], vec[2],
+				vec[3]);
 			self.error();
 		}
 	}
