@@ -114,6 +114,7 @@ pub struct Lib {
 	#[cfg(not(target_os = "windows"))]
 	handle: *mut c_void,
 	// Windows OpenGL loader function
+	#[cfg(target_os = "windows")]
 	loader: unsafe extern "system" fn(*const u8) -> *mut c_void,
 	// OpenGLES Version 2 .so / .dll
 	opengl: *mut c_void,
@@ -338,24 +339,39 @@ impl Lib {
 		}
 
 		// Guaranteed to be `Some` because of conditional panic above.
-		display.surface = NonNull::new(surface);
+		display.surface = ptr::NonNull::new(surface);
 	}
 
-	// Load an OpenGL 3 / OpenGLES 2 function.
-	pub fn load<T>(&self, name: &[u8]) -> T {
-		let mut fn_ptr: *const c_void = if cfg!(target_os = "windows") {
-			unsafe { (self.loader)(name.as_ptr()) }
-		} else {
-			unsafe { dl_sym(self.opengl, name) }
-		};
-		
-		if fn_ptr.is_null() && cfg!(target_os = "windows") {
-			fn_ptr = unsafe { dl_sym(self.opengl, name) };
-		}
-
+	fn load_check(&self, name: &[u8], fn_ptr: *const c_void) {
 		if fn_ptr.is_null() {
 			panic!("couldn't load function \"{}\"!", ::std::str::from_utf8(name).unwrap());
 		}
+	}
+
+	#[cfg(not(target_os = "windows"))]
+	// Load an OpenGL 3 / OpenGLES 2 function.
+	pub fn load<T>(&self, name: &[u8]) -> T {
+		let fn_ptr: *const c_void = unsafe {
+			dl_sym(self.opengl, name)
+		};
+
+		self.load_check(name, fn_ptr);
+
+		unsafe { mem::transmute_copy::<*const c_void, T>(&fn_ptr) }
+	}
+
+	#[cfg(target_os = "windows")]
+	// Load an OpenGL 3 / OpenGLES 2 function.
+	pub fn load<T>(&self, name: &[u8]) -> T {
+		let mut fn_ptr: *const c_void = unsafe {
+			(self.loader)(name.as_ptr())
+		};
+		
+		if fn_ptr.is_null() {
+			fn_ptr = unsafe { dl_sym(self.opengl, name) };
+		}
+
+		self.load_check(name, fn_ptr);
 
 		unsafe { mem::transmute_copy::<*const c_void, T>(&fn_ptr) }
 	}

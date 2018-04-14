@@ -11,17 +11,16 @@ Rust safe bindings for OpenGL / OpenGLES
 
 **asi_opengl**'s planned features:
 * Totally safe OpenGL/ES bindings
-* Speed enchancement: Checking whether or not a uniform in a shader is already set to the value we're trying to set (stored in shader struct).
+* Speed enchancements: Like checking whether or not a uniform in a shader is already set to the value we're trying to set (stored in shader struct).
 
 ## Support
 **asi_opengl**'s current support:
-* EGL with XCB
+* EGL/OpenGLES with XCB
+* WGL/OpenGL on Windows
 
 **asi_opengl**'s planned support:
-* EGL with Wayland
-* Windows
-* Raspberry Pi (no os)
-* Android
+* EGL/OpenGLES with Wayland
+* EGL/OpenGLES on Android
 * MacOS
 
 # Contributing
