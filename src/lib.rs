@@ -79,6 +79,7 @@ impl OpenGLBuilder {
 			gen_textures: self.lib.load(b"glGenTextures\0"),
 			tex_params: self.lib.load(b"glTexParameteri\0"),
 			tex_image: self.lib.load(b"glTexImage2D\0"),
+			tex_subimage: self.lib.load(b"glTexSubImage2D\0"),
 			enable_vattrib: self.lib.load(b"glEnableVertexAttribArray\0"),
 			viewport: self.lib.load(b"glViewport\0"),
 			// Other
@@ -133,6 +134,8 @@ pub struct OpenGL {
 	tex_params: unsafe extern "C" fn(GLenum, GLenum, GLint) -> (),
 	tex_image: unsafe extern "C" fn(GLenum, GLint, GLint, GLsizei,
 		GLsizei, GLint, GLenum, GLenum, *const libc::c_void) -> (),
+	tex_subimage: unsafe extern "C" fn(GLenum, GLint, GLint, GLint, GLsizei,
+		GLsizei, GLenum, GLenum, *const libc::c_void) -> (),
 	enable_vattrib: unsafe extern "C" fn(GLuint) -> (),
 	viewport: unsafe extern "C" fn(GLint, GLint, GLsizei, GLsizei) -> (),
 }
@@ -473,10 +476,20 @@ impl OpenGL {
 	}
 
 	/// Set the bound texture's pixels
-	pub fn set_texture(&self, w: u32, h: u32, px: &[u32]) {
-		unsafe {	
+	pub fn set_texture(&self, w: u32, h: u32, px: &[u32]) -> () {
+		unsafe {
 			(self.tex_image)(GL_TEXTURE_2D, 0, GL_RGBA as i32,
 				w as i32, h as i32, 0, GL_RGBA,
+				GL_UNSIGNED_BYTE, px.as_ptr() as *const _);
+			self.error();
+		}
+	}
+
+	/// Update the pixels of an already bound & set texture.
+	pub fn texture_update(&self, w: u32, h: u32, px: &[u32]) -> () {
+		unsafe {
+			(self.tex_subimage)(GL_TEXTURE_2D, 0, 0, 0,
+				w as i32, h as i32, GL_RGBA,
 				GL_UNSIGNED_BYTE, px.as_ptr() as *const _);
 			self.error();
 		}
