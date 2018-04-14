@@ -105,3 +105,32 @@ use libc;
 #[allow(unused)] pub const EGL_CONTEXT_CLIENT_VERSION: i32 = 0x3098;
 
 #[allow(unused)] pub const EGL_OPENGL_ES_API: u32 = 0x30A0;
+
+#[allow(dead_code)] #[repr(C)] pub struct PixelFormatDescriptor {
+	pub n_size: u16, // word
+	pub n_version: u16, // word
+	pub dw_flags: u32, // dword
+	pub i_pixel_type: u8, // byte
+	pub c_color_bits: u8, // byte
+	pub c_red_bits: u8, // byte
+	pub c_red_shift: u8, // byte
+	pub c_green_bits: u8, // byte
+	pub c_green_shift: u8, // byte
+	pub c_blue_bits: u8, // byte
+	pub c_blue_shift: u8, // byte
+	pub c_alpha_bits: u8, // byte
+	pub c_alpha_shift: u8, // byte
+	pub c_accum_bits: u8, // byte
+	pub c_accum_red_bits: u8, // byte
+	pub c_accum_green_bits: u8, // byte
+	pub c_accum_blue_bits: u8, // byte
+	pub c_accum_alpha_bits: u8, // byte
+	pub c_depth_bits: u8, // byte
+	pub c_stencil_bits: u8, // byte
+	pub c_aux_buffers: u8, // byte
+	pub i_layer_type: u8, // byte
+	pub b_reserved: u8, // byte
+	pub dw_layer_mask: u32, // dword
+	pub dw_visible_mask: u32, // dword
+	pub dw_damage_mask: u32, // dword
+}

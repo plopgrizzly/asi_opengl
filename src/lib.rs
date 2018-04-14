@@ -4,10 +4,7 @@
 
 extern crate libc;
 
-use std::mem;
-use std::ptr;
-
-type Void = i8;
+use std::{ mem, ptr };
 
 mod loader;
 mod types;
@@ -91,53 +88,53 @@ impl OpenGLBuilder {
 /// The OpenGL context.
 pub struct OpenGL {
 	display: loader::Display,
-	clear: unsafe extern "C" fn(GLbitfield) -> (),
-	clear_color: unsafe extern "C" fn(GLfloat, GLfloat, GLfloat,
+	clear: unsafe extern "system" fn(GLbitfield) -> (),
+	clear_color: unsafe extern "system" fn(GLfloat, GLfloat, GLfloat,
 		GLfloat) -> (),
-	disable: unsafe extern "C" fn(GLenum) -> (),
-	enable: unsafe extern "C" fn(GLenum) -> (),
-	#[cfg(debug_assertions)] get_error: unsafe extern "C" fn() -> GLenum,
-	blend_func_separate: unsafe extern "C" fn(GLenum, GLenum, GLenum,
+	disable: unsafe extern "system" fn(GLenum) -> (),
+	enable: unsafe extern "system" fn(GLenum) -> (),
+	#[cfg(debug_assertions)] get_error: unsafe extern "system" fn() -> GLenum,
+	blend_func_separate: unsafe extern "system" fn(GLenum, GLenum, GLenum,
 		GLenum) -> (),
-	create_shader: unsafe extern "C" fn(GLenum) -> GLuint,
-	shader_source: unsafe extern "C" fn(GLuint, GLsizei,
+	create_shader: unsafe extern "system" fn(GLenum) -> GLuint,
+	shader_source: unsafe extern "system" fn(GLuint, GLsizei,
 		*const *const GLchar, *const GLint) -> (),
-	compile_shader: unsafe extern "C" fn(GLuint) -> (),
-	create_program: unsafe extern "C" fn() -> GLuint,
-	attach_shader: unsafe extern "C" fn(GLuint, GLuint) -> (),
-	link_program: unsafe extern "C" fn(GLuint) -> (),
-	uniform: unsafe extern "C" fn(GLuint, *const GLchar) -> GLint,
-	gen_buffers: unsafe extern "C" fn(GLsizei, *mut GLuint) -> (),
-	bind_buffer: unsafe extern "C" fn(GLenum, GLuint) -> (),
-	buffer_data: unsafe extern "C" fn(GLenum, GLsizeiptr,
+	compile_shader: unsafe extern "system" fn(GLuint) -> (),
+	create_program: unsafe extern "system" fn() -> GLuint,
+	attach_shader: unsafe extern "system" fn(GLuint, GLuint) -> (),
+	link_program: unsafe extern "system" fn(GLuint) -> (),
+	uniform: unsafe extern "system" fn(GLuint, *const GLchar) -> GLint,
+	gen_buffers: unsafe extern "system" fn(GLsizei, *mut GLuint) -> (),
+	bind_buffer: unsafe extern "system" fn(GLenum, GLuint) -> (),
+	buffer_data: unsafe extern "system" fn(GLenum, GLsizeiptr,
 		*const libc::c_void, GLenum) -> (),
-	attribute: unsafe extern "C" fn(GLuint, *const GLchar) -> GLint,
-	get_shader: unsafe extern "C" fn(GLuint, GLenum, *mut GLint) -> (),
-	info_log: unsafe extern "C" fn(GLuint, GLsizei, *mut GLsizei,
+	attribute: unsafe extern "system" fn(GLuint, *const GLchar) -> GLint,
+	get_shader: unsafe extern "system" fn(GLuint, GLenum, *mut GLint) -> (),
+	info_log: unsafe extern "system" fn(GLuint, GLsizei, *mut GLsizei,
 		*mut GLchar) -> (),
-	draw_elements: unsafe extern "C" fn(GLenum, GLsizei, GLenum,
+	draw_elements: unsafe extern "system" fn(GLenum, GLsizei, GLenum,
 		*const libc::c_void) -> (),
-	use_program: unsafe extern "C" fn(GLuint) -> (),
-	uniform_mat4: unsafe extern "C" fn(GLint, GLsizei, GLboolean,
+	use_program: unsafe extern "system" fn(GLuint) -> (),
+	uniform_mat4: unsafe extern "system" fn(GLint, GLsizei, GLboolean,
 		*const GLfloat) -> (),
-	uniform_int1: unsafe extern "C" fn(GLint, GLint) -> (),
-	uniform_vec1: unsafe extern "C" fn(GLint, GLfloat) -> (),
-	uniform_vec2: unsafe extern "C" fn(GLint, GLfloat, GLfloat) -> (),
-	uniform_vec3: unsafe extern "C" fn(GLint, GLfloat, GLfloat, GLfloat)
+	uniform_int1: unsafe extern "system" fn(GLint, GLint) -> (),
+	uniform_vec1: unsafe extern "system" fn(GLint, GLfloat) -> (),
+	uniform_vec2: unsafe extern "system" fn(GLint, GLfloat, GLfloat) -> (),
+	uniform_vec3: unsafe extern "system" fn(GLint, GLfloat, GLfloat, GLfloat)
 		-> (),
-	uniform_vec4: unsafe extern "C" fn(GLint, GLfloat, GLfloat, GLfloat,
+	uniform_vec4: unsafe extern "system" fn(GLint, GLfloat, GLfloat, GLfloat,
 		GLfloat) -> (),
-	bind_texture: unsafe extern "C" fn(GLenum, GLuint) -> (),
-	vertex_attrib: unsafe extern "C" fn(GLuint, GLint, GLenum,
+	bind_texture: unsafe extern "system" fn(GLenum, GLuint) -> (),
+	vertex_attrib: unsafe extern "system" fn(GLuint, GLint, GLenum,
 		GLboolean, GLsizei, *const libc::c_void) -> (),
-	gen_textures: unsafe extern "C" fn(GLsizei, *mut GLuint) -> (),
-	tex_params: unsafe extern "C" fn(GLenum, GLenum, GLint) -> (),
-	tex_image: unsafe extern "C" fn(GLenum, GLint, GLint, GLsizei,
+	gen_textures: unsafe extern "system" fn(GLsizei, *mut GLuint) -> (),
+	tex_params: unsafe extern "system" fn(GLenum, GLenum, GLint) -> (),
+	tex_image: unsafe extern "system" fn(GLenum, GLint, GLint, GLsizei,
 		GLsizei, GLint, GLenum, GLenum, *const libc::c_void) -> (),
-	tex_subimage: unsafe extern "C" fn(GLenum, GLint, GLint, GLint, GLsizei,
+	tex_subimage: unsafe extern "system" fn(GLenum, GLint, GLint, GLint, GLsizei,
 		GLsizei, GLenum, GLenum, *const libc::c_void) -> (),
-	enable_vattrib: unsafe extern "C" fn(GLuint) -> (),
-	viewport: unsafe extern "C" fn(GLint, GLint, GLsizei, GLsizei) -> (),
+	enable_vattrib: unsafe extern "system" fn(GLuint) -> (),
+	viewport: unsafe extern "system" fn(GLint, GLint, GLsizei, GLsizei) -> (),
 }
 
 impl OpenGL {
