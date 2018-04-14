@@ -4,8 +4,7 @@
 
 use libc;
 
-use std::mem;
-use std::ptr;
+use std::{ mem, ptr, ptr::NonNull };
 
 use Void;
 
@@ -80,7 +79,7 @@ unsafe fn dl_sym<T>(lib: *mut Void, name: &[u8]) -> T {
 #[cfg(not(target_os = "windows"))]
 pub struct Display {
 	display: *mut libc::c_void,
-	surface: Option<*mut libc::c_void>,
+	surface: Option<NonNull<libc::c_void>>,
 	config: *mut libc::c_void,
 	context: *mut libc::c_void,
 	swap: unsafe extern "C" fn(EGLDisplay, EGLSurface) -> EGLBoolean,
@@ -91,7 +90,7 @@ impl Display {
 	// Swap surface with screen buffer.
 	pub fn swap(&self) {
 		if unsafe {
-			(self.swap)(self.display, self.surface.unwrap())
+			(self.swap)(self.display,self.surface.unwrap().as_ptr())
 		} == 0 {
 			panic!("Swapping Failed");
 		}
@@ -266,7 +265,8 @@ impl Lib {
 			panic!("Couldn't make current");
 		}
 
-		display.surface = Some(surface);
+		// Guaranteed to be `Some` because of conditional panic above.
+		display.surface = NonNull::new(surface);
 	}
 
 	// Load an OpenGL 3 / OpenGLES 2 function.
