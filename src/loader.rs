@@ -40,21 +40,30 @@ unsafe fn load_lib() -> (*mut c_void, *mut c_void) {
 
 #[cfg(not(target_os = "windows"))]
 unsafe fn load_lib() -> (*mut c_void, *mut c_void) {
-	if cfg!(any(target_os = "linux", target_os = "android")) {
-		let egl = b"libEGL.so.1\0";
-		let opengl = b"libGLESv2.so.2\0";
+	let egl = b"libEGL.so.1\0";
+	let opengl = b"libGLESv2.so.2\0";
 
-		let egl = dlopen(egl.as_ptr() as *const _ as *const i8, 1);
-		let opengl = dlopen(opengl.as_ptr() as *const _ as *const i8, 1);
+	let egl = dlopen(egl.as_ptr() as *const _ as *const i8, 1);
 
-		(egl, opengl)
-	} else { // MacOS / IOS
+	// Prefer OpenGLES on Linux
+	let opengl = dlopen(opengl.as_ptr() as *const _ as *const i8, 1);
+
+	// OpenGL on Linux
+	let opengl = if opengl.is_null() {
+		let gl = b"libGL.so.1\0";
+
+		dlopen(gl.as_ptr() as *const _ as *const i8, 1)
+	} else { opengl };
+
+	// TODO: test for libgl.so.1 is needed/works for MacOS / iOS
+	// OpenGL on MacOS
+	let opengl = if opengl.is_null() {
 		let gl = b"libgl.so.1\0";
 
-		let gl = dlopen(gl.as_ptr() as *const _ as *const i8, 1);
+		dlopen(gl.as_ptr() as *const _ as *const i8, 1)
+	} else { opengl };
 
-		(ptr::null_mut(), gl)
-	}
+	(egl, opengl)
 }
 
 #[cfg(target_os = "windows")]
