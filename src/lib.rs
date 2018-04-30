@@ -63,7 +63,7 @@ impl OpenGLBuilder {
 			attribute: self.lib.load(b"glGetAttribLocation\0"),
 			get_shader: self.lib.load(b"glGetShaderiv\0"),
 			info_log: self.lib.load(b"glGetShaderInfoLog\0"),
-			draw_elements: self.lib.load(b"glDrawElements\0"),
+			draw_arrays: self.lib.load(b"glDrawArrays\0"),
 			use_program: self.lib.load(b"glUseProgram\0"),
 			uniform_mat4: self.lib.load(b"glUniformMatrix4fv\0"),
 			uniform_int1: self.lib.load(b"glUniform1i\0"),
@@ -112,8 +112,7 @@ pub struct OpenGL {
 	get_shader: unsafe extern "system" fn(GLuint, GLenum, *mut GLint) -> (),
 	info_log: unsafe extern "system" fn(GLuint, GLsizei, *mut GLsizei,
 		*mut GLchar) -> (),
-	draw_elements: unsafe extern "system" fn(GLenum, GLsizei, GLenum,
-		*const libc::c_void) -> (),
+	draw_arrays: unsafe extern "system" fn(GLenum, GLint, GLsizei) -> (),
 	use_program: unsafe extern "system" fn(GLuint) -> (),
 	uniform_mat4: unsafe extern "system" fn(GLint, GLsizei, GLboolean,
 		*const GLfloat) -> (),
@@ -351,29 +350,18 @@ impl OpenGL {
 	}
 
 	/// Bind a buffer from `new_buffers()`
-	pub fn bind_buffer(&self, is_index_buffer: bool, buffer: u32) {
+	pub fn bind_buffer(&self, buffer: u32) {
 		unsafe {
-			(self.bind_buffer)(
-				if is_index_buffer {
-					GL_ELEMENT_ARRAY_BUFFER
-				} else {
-					GL_ARRAY_BUFFER
-				}, buffer);
+			(self.bind_buffer)(GL_ARRAY_BUFFER, buffer);
 			self.error();
 		}
-
-
 	}
 
 	/// Set the bound buffer's data
-	pub fn set_buffer<T>(&self, is_index_buffer: bool, data: &[T]) {
+	pub fn set_buffer<T>(&self, data: &[T]) {
 		unsafe {
-			(self.buffer_data)(
-				if is_index_buffer {
-					GL_ELEMENT_ARRAY_BUFFER
-				} else {
-					GL_ARRAY_BUFFER
-				}, (data.len() * mem::size_of::<T>()) as isize,
+			(self.buffer_data)(GL_ARRAY_BUFFER,
+				(data.len() * mem::size_of::<T>()) as isize,
 				data.as_ptr() as *const _,
 				GL_DYNAMIC_DRAW);
 			self.error();
@@ -441,12 +429,11 @@ impl OpenGL {
 	}
 
 	/// Draw the elements.
-	pub fn draw_elements(&self, n_indices: u32) {
+	pub fn draw_arrays(&self, n_indices: u32) {
 		unsafe {
 			// draw
-			(self.draw_elements)(0x0004 /*GL_TRIANGLES*/,
-				n_indices as GLsizei,
-				0x1405 /*GL_UNSIGNED_INT*/, ptr::null());
+			(self.draw_arrays)(0x0005 /*GL_TRIANGLE_STRIP*/,
+				0, n_indices as GLsizei);
 			self.error();
 		}
 	}
