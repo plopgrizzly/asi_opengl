@@ -219,6 +219,8 @@ impl Lib {
 				EGL_GREEN_SIZE, 8,
 				EGL_BLUE_SIZE, 8,
 				EGL_DEPTH_SIZE, 24,
+				EGL_SAMPLE_BUFFERS, 1,
+				EGL_SAMPLES, 8,
 				EGL_NONE
 			].as_ptr(), &mut config, 1, &mut nconfigs)
 		} == 0 {
@@ -308,6 +310,8 @@ impl Lib {
 			= unsafe {
 				dl_sym(self.opengl, b"wglMakeCurrent\0")
 			};
+
+		// TODO: wglChoosePixelFormat, for multisampling(8) on Windows.
 		
 		unsafe {
 			let context = create_context(dc);
