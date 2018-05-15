@@ -1,6 +1,5 @@
-// types.rs -- Aldaron's System Interface / OpenGL
-// Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
-// Licensed under the MIT LICENSE
+// "asi_opengl" crate - Licensed under the MIT LICENSE
+//  * Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
 
 use libc;
 

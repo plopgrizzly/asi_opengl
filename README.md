@@ -1,4 +1,4 @@
-# Aldaron's System Interface / OpenGL (asi_opengl 0.1.0)
+# Aldaron's System Interface / OpenGL
 
 Rust safe bindings for OpenGL / OpenGLES
 

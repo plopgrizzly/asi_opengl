@@ -1,6 +1,5 @@
-// lib.rs -- Aldaron's System Interface / OpenGL
-// Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
-// Licensed under the MIT LICENSE
+// "asi_opengl" crate - Licensed under the MIT LICENSE
+//  * Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
 
 extern crate libc;
 
@@ -210,8 +209,7 @@ impl OpenGL {
 			self.error();
 			(self.compile_shader)(v_shader);
 			self.error();
-			//		if cfg!(debug) { // TODO
-			// unsafe {
+			if cfg!(debug_assertions) {
 				let mut value = mem::uninitialized();
 
 				(self.get_shader)(v_shader,
@@ -240,8 +238,7 @@ impl OpenGL {
 							buffer.as_slice())
 							.unwrap());
 				}
-			// }
-//		}
+			}
 
 			let f_shader = (self.create_shader)(0x8B30/*fragment*/);
 			self.error();
