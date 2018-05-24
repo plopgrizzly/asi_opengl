@@ -13,7 +13,7 @@
 
 [package]
 name = "asi_opengl"
-version = "0.3.0"
+version = "0.3.1"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]
@@ -23,6 +23,7 @@ documentation = "https://docs.rs/asi_opengl"
 homepage = "http://plopgrizzly.com/asi_opengl"
 repository = "https://github.com/plopgrizzly/asi_opengl"
 
+readme = "readme.md"
 description = "Rust safe bindings for OpenGL / OpenGLES."
 keywords = ["opengl", "opengl-es"]
 categories = ["rendering::graphics-api", "hardware-support",
