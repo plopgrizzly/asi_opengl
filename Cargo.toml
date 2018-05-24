@@ -23,7 +23,6 @@ documentation = "https://docs.rs/asi_opengl"
 homepage = "http://plopgrizzly.com/asi_opengl"
 repository = "https://github.com/plopgrizzly/asi_opengl"
 
-readme = "README.md"
 description = "Rust safe bindings for OpenGL / OpenGLES."
 keywords = ["opengl", "opengl-es"]
 categories = ["rendering::graphics-api", "hardware-support",
