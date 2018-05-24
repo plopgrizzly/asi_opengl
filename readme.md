@@ -3,7 +3,8 @@
 Rust safe bindings for OpenGL / OpenGLES
 
 [Cargo](https://crates.io/crates/asi_opengl) /
-[Documentation](https://docs.rs/asi_opengl)
+[Documentation](https://docs.rs/asi_opengl) /
+[Change Log](http://plopgrizzly.com/asi_opengl/changelog.html)
 
 ## Features
 **asi_opengl**'s current features:
