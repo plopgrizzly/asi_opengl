@@ -426,11 +426,11 @@ impl OpenGL {
 	}
 
 	/// Draw the elements.
-	pub fn draw_arrays(&self, n_indices: u32) {
+	pub fn draw_arrays(&self, start_index: u32, n_indices: u32) {
 		unsafe {
 			// draw
-			(self.draw_arrays)(0x0005 /*GL_TRIANGLE_STRIP*/,
-				0, n_indices as GLsizei);
+			(self.draw_arrays)(0x0006 /*GL_TRIANGLE_FAN*/,
+				start_index as GLint, n_indices as GLsizei);
 			self.error();
 		}
 	}
