@@ -1,30 +1,30 @@
 // "asi_opengl" crate - Licensed under the MIT LICENSE
 //  * Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
 
-use libc;
+use c_void;
 
 // GL Types
-#[allow(unused)] pub type GLuint = libc::c_uint;
-#[allow(unused)] pub type GLint = libc::c_int;
-#[allow(unused)] pub type GLenum = libc::c_uint;
-#[allow(unused)] pub type GLboolean = libc::c_uchar;
-#[allow(unused)] pub type GLsizei = libc::c_int;
-#[allow(unused)] pub type GLchar = libc::c_char;
-#[allow(unused)] pub type GLbitfield = libc::c_uint;
+#[allow(unused)] pub type GLuint = u32;
+#[allow(unused)] pub type GLint = i32;
+#[allow(unused)] pub type GLenum = u32;
+#[allow(unused)] pub type GLboolean = u8;
+#[allow(unused)] pub type GLsizei = i32;
+#[allow(unused)] pub type GLchar = i8;
+#[allow(unused)] pub type GLbitfield = u32;
 #[allow(unused)] pub type GLsizeiptr = isize;
-#[allow(unused)] pub type GLfloat = libc::c_float;
-#[allow(unused)] pub type GLubyte = libc::c_uchar;
+#[allow(unused)] pub type GLfloat = f32;
+#[allow(unused)] pub type GLubyte = u8;
 
 // X11 & Android
-#[allow(unused)] pub type EGLSurface = *mut libc::c_void;
-#[allow(unused)] pub type EGLNativeWindowType = *mut libc::c_void;
-#[allow(unused)] pub type EGLNativeDisplayType = *mut libc::c_void;
-#[allow(unused)] pub type EGLDisplay = *mut libc::c_void;
-#[allow(unused)] pub type EGLint = libc::int32_t;
-#[allow(unused)] pub type EGLBoolean = libc::c_uint;
-#[allow(unused)] pub type EGLConfig = *mut libc::c_void;
-#[allow(unused)] pub type EGLContext = *mut libc::c_void;
-#[allow(unused)] pub type EGLenum = libc::c_uint;
+#[allow(unused)] pub type EGLSurface = *mut c_void;
+#[allow(unused)] pub type EGLNativeWindowType = *mut c_void;
+#[allow(unused)] pub type EGLNativeDisplayType = *mut c_void;
+#[allow(unused)] pub type EGLDisplay = *mut c_void;
+#[allow(unused)] pub type EGLint = i32;
+#[allow(unused)] pub type EGLBoolean = u32;
+#[allow(unused)] pub type EGLConfig = *mut c_void;
+#[allow(unused)] pub type EGLContext = *mut c_void;
+#[allow(unused)] pub type EGLenum = u32;
 
 #[allow(unused)] pub const GL_FLOAT: u32 = 0x1406;
 #[allow(unused)] pub const GL_TEXTURE_2D: u32 = 0x0DE1;

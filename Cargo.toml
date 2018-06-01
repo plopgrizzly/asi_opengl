@@ -35,4 +35,7 @@ exclude = [
 ]
 
 [dependencies]
-libc = "^0.2"
+dl_api = { path = "../../rust/dl_api" }
+
+[target.'cfg(windows)'.dependencies]
+winapi = "0.3"

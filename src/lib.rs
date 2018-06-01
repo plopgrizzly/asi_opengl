@@ -1,8 +1,12 @@
 // "asi_opengl" crate - Licensed under the MIT LICENSE
 //  * Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
 
-extern crate libc;
+#[macro_use]
+extern crate dl_api;
+#[cfg(windows)]
+extern crate winapi;
 
+use std::os::raw::c_void;
 use std::{ mem, ptr };
 
 mod loader;
@@ -11,7 +15,7 @@ mod types;
 use types::*;
 
 #[derive(Copy, Clone)]
-pub struct Texture(libc::c_uint);
+pub struct Texture(u32);
 pub struct Attribute(pub GLint); // Pub is for testing,
 
 /// The OpenGL builder.
@@ -80,12 +84,14 @@ impl OpenGLBuilder {
 			viewport: self.lib.load(b"glViewport\0"),
 			// Other
 			display: self.display,
+			lib: self.lib,
 		}
 	}
 }
 
 /// The OpenGL context.
 pub struct OpenGL {
+	lib: loader::Lib,
 	display: loader::Display,
 	clear: unsafe extern "system" fn(GLbitfield) -> (),
 	clear_color: unsafe extern "system" fn(GLfloat, GLfloat, GLfloat,
@@ -106,7 +112,7 @@ pub struct OpenGL {
 	gen_buffers: unsafe extern "system" fn(GLsizei, *mut GLuint) -> (),
 	bind_buffer: unsafe extern "system" fn(GLenum, GLuint) -> (),
 	buffer_data: unsafe extern "system" fn(GLenum, GLsizeiptr,
-		*const libc::c_void, GLenum) -> (),
+		*const c_void, GLenum) -> (),
 	attribute: unsafe extern "system" fn(GLuint, *const GLchar) -> GLint,
 	get_shader: unsafe extern "system" fn(GLuint, GLenum, *mut GLint) -> (),
 	info_log: unsafe extern "system" fn(GLuint, GLsizei, *mut GLsizei,
@@ -124,13 +130,13 @@ pub struct OpenGL {
 		GLfloat) -> (),
 	bind_texture: unsafe extern "system" fn(GLenum, GLuint) -> (),
 	vertex_attrib: unsafe extern "system" fn(GLuint, GLint, GLenum,
-		GLboolean, GLsizei, *const libc::c_void) -> (),
+		GLboolean, GLsizei, *const c_void) -> (),
 	gen_textures: unsafe extern "system" fn(GLsizei, *mut GLuint) -> (),
 	tex_params: unsafe extern "system" fn(GLenum, GLenum, GLint) -> (),
 	tex_image: unsafe extern "system" fn(GLenum, GLint, GLint, GLsizei,
-		GLsizei, GLint, GLenum, GLenum, *const libc::c_void) -> (),
+		GLsizei, GLint, GLenum, GLenum, *const c_void) -> (),
 	tex_subimage: unsafe extern "system" fn(GLenum, GLint, GLint, GLint, GLsizei,
-		GLsizei, GLenum, GLenum, *const libc::c_void) -> (),
+		GLsizei, GLenum, GLenum, *const c_void) -> (),
 	enable_vattrib: unsafe extern "system" fn(GLuint) -> (),
 	viewport: unsafe extern "system" fn(GLint, GLint, GLsizei, GLsizei) -> (),
 }
@@ -156,7 +162,10 @@ impl OpenGL {
 	/// Update the screen
 	pub fn update(&self) {
 		// Swap Display
-		self.display.swap();
+		self.display.swap(
+			#[cfg(not(target_os = "windows"))]
+			&self.lib
+		);
 	}
 
 	/// Enable something
