@@ -10,7 +10,9 @@ use winapi::shared::ntdef::LPCSTR;
 
 #[cfg(windows)]
 dl_api!(WinOpenGL, "opengl32.dll",
-	fn wglGetProcAddress(LPCSTR) -> *mut c_void
+	fn wglGetProcAddress(LPCSTR) -> *mut c_void,
+	fn wglCreateContext(*mut c_void) -> *mut c_void,
+	fn wglMakeCurrent(*mut c_void, *mut c_void) -> i32
 );
 
 #[cfg(not(windows))]
@@ -228,18 +230,10 @@ impl Lib {
 		
 		unsafe {
 			SetPixelFormat(dc, format, &pixel_format);
-		}
-		
-		let create_context: unsafe extern "system" fn(*mut c_void)
-			-> *mut c_void = self.load(b"wglCreateContext\0");
-		let make_current: unsafe extern "system" fn(*mut c_void,
-			*mut c_void) -> i32 = self.load(b"wglMakeCurrent\0");
-
-		// TODO: wglChoosePixelFormat, for multisampling(8) on Windows.
-		
-		unsafe {
-			let context = create_context(dc);
-			make_current(dc, context);
+			
+			// TODO: wglChoosePixelFormat, for multisampling(8) on Windows.
+			let context = (self.wgl.wglCreateContext)(dc);
+			(self.wgl.wglMakeCurrent)(dc, context);
 		}
 	}
 
@@ -290,11 +284,20 @@ impl Lib {
 	#[cfg(windows)]
 	// Load an OpenGL 3 / OpenGLES 2 function.
 	pub fn load<T>(&self, name: &[u8]) -> T {
-		let fn_ptr: *const c_void = unsafe {
+		let mut fn_ptr: *const c_void = unsafe {
 			(self.wgl.wglGetProcAddress)(name as *const _ as LPCSTR)
 		};
-
-		self.load_check(name, fn_ptr);
+		
+		if fn_ptr.is_null() {
+			if let Ok(n) = unsafe {
+				self.wgl.__lib.symbol_cstr(::std::ffi::CStr::from_bytes_with_nul(name).unwrap())
+			} {
+				return n;
+			} else {
+				panic!("couldn't load function \"{}\"!",
+					::std::str::from_utf8(name).unwrap());
+			};
+		}
 
 		unsafe { mem::transmute_copy::<*const c_void, T>(&fn_ptr) }
 	}
