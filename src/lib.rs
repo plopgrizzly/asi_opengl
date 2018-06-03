@@ -91,6 +91,7 @@ impl OpenGLBuilder {
 
 /// The OpenGL context.
 pub struct OpenGL {
+	#[allow(unused)] // is used at drop.
 	lib: loader::Lib,
 	display: loader::Display,
 	clear: unsafe extern "system" fn(GLbitfield) -> (),
