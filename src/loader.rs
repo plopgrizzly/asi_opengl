@@ -6,11 +6,16 @@ use std::{ mem, ptr };
 use types::*;
 
 #[cfg(windows)]
-use winapi::shared::ntdef::LPCSTR;
+use winapi::shared::ntdef::{ LPCSTR };
+// use winapi::shared::windef::HDC;
+use winapi::shared::minwindef::{ BOOL/*, FLOAT, UINT*/ };
 
 #[cfg(windows)]
 dl_api!(WinOpenGL, "opengl32.dll",
-	fn wglGetProcAddress(LPCSTR) -> *mut c_void
+	fn wglGetProcAddress(LPCSTR) -> *mut c_void,
+	fn wglCreateContext(*mut c_void) -> *mut c_void,
+	fn wglMakeCurrent(*mut c_void, *mut c_void) -> BOOL
+//	fn wglChoosePixelFormat(HDC, *const i32, *const FLOAT, UINT, *mut i32, *mut UINT) -> BOOL
 );
 
 #[cfg(not(windows))]
@@ -209,14 +214,14 @@ impl Lib {
 			dw_flags: 4 /*draw-to-window*/ | 32 /*support-opengl*/
 				| 1 /*doublebuffer*/,
 			i_pixel_type: 0 /*RGBA*/,
-			c_color_bits: 32,
+			c_color_bits: 24,
 			c_red_bits: 0, c_red_shift: 0, c_green_bits: 0,
 			c_green_shift: 0, c_blue_bits: 0, c_blue_shift: 0,
 			c_alpha_bits: 0, c_alpha_shift: 0, c_accum_bits: 0,
 			c_accum_red_bits: 0, c_accum_green_bits: 0,
 			c_accum_blue_bits: 0, c_accum_alpha_bits: 0,
 			c_depth_bits: 24,
-			c_stencil_bits: 0, c_aux_buffers: 0,
+			c_stencil_bits: 8, c_aux_buffers: 0,
 			i_layer_type: 0 /*main-plane*/,
 			b_reserved: 0, dw_layer_mask: 0, dw_visible_mask: 0,
 			dw_damage_mask: 0,
@@ -227,19 +232,26 @@ impl Lib {
 		};
 		
 		unsafe {
+//			let mut format_count = 0;
+		
+//			// TODO: wglChoosePixelFormat, for multisampling(8) on Windows.
+//			(self.wgl.wglChoosePixelFormat)(dc as *mut _ as *mut _, [
+//				0x2010 /*WGL_SUPPORT_OPENGL_ARB*/, 1,
+//				0x2001 /*WGL_DRAW_TO_WINDOW_ARB*/, 1,
+//				0x2003 /*WGL_ACCELERATION_ARB*/, 0x2027 /*WGL_FULL_ACCELERATION_ARB*/,
+//				0x2014 /*WGL_COLOR_BITS_ARB*/, 24,
+//				0x2022 /*WGL_DEPTH_BITS_ARB*/, 24,
+//				0x2011 /*WGL_DOUBLE_BUFFER_ARB*/, 1,
+//				0x2007 /*WGL_SWAP_METHOD_ARB*/, 0x2028 /*WGL_SWAP_EXCHANGE_ARB*/,
+//				0x2013 /*WGL_PIXEL_TYPE_ARB*/, 0x202B /*WGL_TYPE_RGBA_ARB*/,
+//				0x2023 /*WGL_STENCIL_BITS_ARB*/, 8,
+//				0
+//				].as_ptr(), ::std::ptr::null(), 1, &mut format, &mut format_count);
+			
 			SetPixelFormat(dc, format, &pixel_format);
-		}
-		
-		let create_context: unsafe extern "system" fn(*mut c_void)
-			-> *mut c_void = self.load(b"wglCreateContext\0");
-		let make_current: unsafe extern "system" fn(*mut c_void,
-			*mut c_void) -> i32 = self.load(b"wglMakeCurrent\0");
-
-		// TODO: wglChoosePixelFormat, for multisampling(8) on Windows.
-		
-		unsafe {
-			let context = create_context(dc);
-			make_current(dc, context);
+			
+			let context = (self.wgl.wglCreateContext)(dc);
+			(self.wgl.wglMakeCurrent)(dc, context);
 		}
 	}
 
@@ -268,6 +280,7 @@ impl Lib {
 		display.surface = ptr::NonNull::new(surface);
 	}
 
+	#[cfg(not(windows))]
 	fn load_check(&self, name: &[u8], fn_ptr: *const c_void) {
 		if fn_ptr.is_null() {
 			panic!("couldn't load function \"{}\"!", ::std::str::from_utf8(name).unwrap());
@@ -293,8 +306,17 @@ impl Lib {
 		let fn_ptr: *const c_void = unsafe {
 			(self.wgl.wglGetProcAddress)(name as *const _ as LPCSTR)
 		};
-
-		self.load_check(name, fn_ptr);
+		
+		if fn_ptr.is_null() {
+			if let Ok(n) = unsafe {
+				self.wgl.__lib.symbol_cstr(::std::ffi::CStr::from_bytes_with_nul(name).unwrap())
+			} {
+				return n;
+			} else {
+				panic!("couldn't load function \"{}\"!",
+					::std::str::from_utf8(name).unwrap());
+			};
+		}
 
 		unsafe { mem::transmute_copy::<*const c_void, T>(&fn_ptr) }
 	}

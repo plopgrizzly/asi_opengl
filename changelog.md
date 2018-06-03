@@ -1,7 +1,7 @@
 ## 0.3.2
-* Use the dl_api crate
-* Use winapi crate on Windows
-* Above 2 crates replace libc
+* Use the dl_api crate for Unix function loading (XCB).
+* Use winapi crate on Windows.
+* Above 2 crates replace libc dependency.
 
 ## 0.3.1
 * Fix readme not being on crates.io
