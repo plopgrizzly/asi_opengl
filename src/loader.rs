@@ -8,6 +8,7 @@ use types::*;
 #[cfg(windows)]
 use winapi::shared::ntdef::{ LPCSTR };
 // use winapi::shared::windef::HDC;
+#[cfg(windows)]
 use winapi::shared::minwindef::{ BOOL/*, FLOAT, UINT*/ };
 
 #[cfg(windows)]
