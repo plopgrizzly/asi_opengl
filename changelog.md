@@ -1,3 +1,6 @@
+## 0.3.3
+* Fix broken Linux port.
+
 ## 0.3.2
 * Use the dl_api crate for Unix function loading (XCB).
 * Use winapi crate on Windows.
