@@ -82,6 +82,7 @@ impl OpenGLBuilder {
 			tex_subimage: self.lib.load(b"glTexSubImage2D\0"),
 			enable_vattrib: self.lib.load(b"glEnableVertexAttribArray\0"),
 			viewport: self.lib.load(b"glViewport\0"),
+			gen_mipmap: self.lib.load(b"glGenerateMipmap\0"),
 			// Other
 			display: self.display,
 			lib: self.lib,
@@ -140,6 +141,7 @@ pub struct OpenGL {
 		GLsizei, GLenum, GLenum, *const c_void) -> (),
 	enable_vattrib: unsafe extern "system" fn(GLuint) -> (),
 	viewport: unsafe extern "system" fn(GLint, GLint, GLsizei, GLsizei) -> (),
+	gen_mipmap: unsafe extern "system" fn(GLenum) -> (),
 }
 
 impl OpenGL {
@@ -455,11 +457,11 @@ impl OpenGL {
 
 			self.use_texture(&Texture(a));
 
-			(self.tex_params)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-				GL_NEAREST);
-			self.error();
 			(self.tex_params)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-				GL_NEAREST);
+				GL_LINEAR);
+			self.error();
+			(self.tex_params)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_LINEAR);
 			self.error();
 
 			a
@@ -472,6 +474,8 @@ impl OpenGL {
 			(self.tex_image)(GL_TEXTURE_2D, 0, GL_RGBA as i32,
 				w as i32, h as i32, 0, GL_RGBA,
 				GL_UNSIGNED_BYTE, px.as_ptr() as *const _);
+			self.error();
+			(self.gen_mipmap)(GL_TEXTURE_2D);
 			self.error();
 		}
 	}

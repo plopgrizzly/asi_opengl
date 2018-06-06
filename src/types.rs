@@ -31,6 +31,10 @@ use c_void;
 #[allow(unused)] pub const GL_TEXTURE_MAG_FILTER: u32 = 0x2800;
 #[allow(unused)] pub const GL_TEXTURE_MIN_FILTER: u32 = 0x2801;
 #[allow(unused)] pub const GL_NEAREST: i32 = 0x2600;
+#[allow(unused)] pub const GL_LINEAR: i32 = 0x2601;
+#[allow(unused)] pub const GL_LINEAR_MIPMAP_LINEAR: i32 = 0x2703;
+#[allow(unused)] pub const GL_NEAREST_MIPMAP_NEAREST: i32 = 0x2700;
+#[allow(unused)] pub const GL_NEAREST_MIPMAP_LINEAR: i32 = 0x2702;
 #[allow(unused)] pub const GL_RGBA: u32 = 0x1908;
 #[allow(unused)] pub const GL_UNSIGNED_BYTE: u32 = 0x1401;
 
