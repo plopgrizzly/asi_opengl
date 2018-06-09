@@ -1,10 +1,16 @@
 // "asi_opengl" crate - Licensed under the MIT LICENSE
 //  * Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
 
+use UniformData;
+use VertexData;
 use OpenGL;
-use std::rc::Rc;
+use std::{ rc::Rc, ops::Range };
 use types::*;
+use Topology;
 
+static mut CURRENT_PROGRAM: GLuint = 0; // 0 is always invalid program.
+
+/// A loaded GPU program.
 #[derive(Clone)] pub struct Program(pub(crate) Rc<ProgramContext>);
 
 impl Program {
@@ -24,12 +30,46 @@ impl Program {
 		Program(Rc::new(ProgramContext(program, opengl.clone())))
 	}
 
+	/// Get a vertex data handle for this GPU program.
+	pub fn vertex_data(&self, name: &[u8]) -> VertexData {
+		VertexData::new(self, name)
+	}
+
+	/// Get a uniform data handle for this GPU program.
+	pub fn uniform(&self, name: &[u8]) -> UniformData {
+		UniformData::new(self, name)
+	}
+
+	/// Draw the elements.
+	pub fn draw_arrays(&self, topology: Topology, range: Range<u32>) {
+		self.bind();
+		gl!((*self.0).1, ((*self.0).1.get().draw_arrays)(
+			topology as GLuint,
+			range.start as GLint, range.end as GLsizei));
+	}
+
+	/// Bind a program to be used.
+	pub(crate) fn bind(&self) {
+		let program = unsafe { self.get() };
+
+		if program != unsafe { CURRENT_PROGRAM } {
+			gl!(&(*self.0).1,
+				((*self.0).1.get().use_program)(program));
+			unsafe { CURRENT_PROGRAM = program; }
+		}
+	}
+
+	/// Get a new OpenGL reference
+	pub(crate) fn opengl(&self) -> OpenGL {
+		(*self.0).1.clone()
+	}
+
 	pub(crate) unsafe fn get(&self) -> GLuint {
 		(*self.0).0
 	}
 }
 
-pub(crate) struct ProgramContext(pub(crate) GLuint, pub(crate) OpenGL);
+pub(crate) struct ProgramContext(GLuint, OpenGL);
 
 impl Drop for ProgramContext {
 	fn drop(&mut self) {

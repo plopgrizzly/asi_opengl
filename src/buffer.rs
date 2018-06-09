@@ -5,6 +5,9 @@ use std::{ mem, rc::Rc };
 use OpenGL;
 use types::*;
 
+static mut CURRENT_BUFFER: GLuint = ::std::u32::MAX; // No current buffer
+
+/// An OpenGL buffer, usually a VBO.
 #[derive(Clone)] pub struct Buffer(pub(crate) Rc<BufferContext>);
 
 impl Buffer {
@@ -14,6 +17,26 @@ impl Buffer {
 		gl!(opengl, (opengl.get().gen_buffers)(1/*1 buffer*/,
 			buffers.as_mut_ptr()));
 		Buffer(Rc::new(BufferContext(buffers[0], opengl.clone())))
+	}
+
+	/// Bind this buffer.
+	pub(crate) fn bind(&self) {
+		let buffer = self.get();
+
+		if buffer != unsafe { CURRENT_BUFFER } {
+			gl!((*self.0).1, ((*self.0).1.get().bind_buffer)(
+				GL_ARRAY_BUFFER, buffer));
+			unsafe { CURRENT_BUFFER = buffer; }
+		}
+	}
+
+	/// Set the bound buffer's data
+	pub fn set<T>(&self, data: &[T]) {
+		self.bind();
+		gl!((*self.0).1, ((*self.0).1.get().buffer_data)(
+			GL_ARRAY_BUFFER,
+			(data.len() * mem::size_of::<T>()) as isize,
+			data.as_ptr() as *const _, GL_DYNAMIC_DRAW));
 	}
 
 	pub(crate) fn get(&self) -> GLuint {

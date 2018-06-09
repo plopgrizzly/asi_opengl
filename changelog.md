@@ -1,3 +1,6 @@
+## 0.4
+* Safe API
+
 ## 0.3.4
 * Use LINEAR instead of NEAREST for texturing.
 * Use mipmapping to speed up drawing big textures in small areas.

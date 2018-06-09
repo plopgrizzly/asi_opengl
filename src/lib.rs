@@ -17,7 +17,6 @@ macro_rules! gl {
 }
 
 use std::os::raw::c_void;
-use std::{ mem };
 use std::rc::Rc;
 use std::cell::RefCell;
 
@@ -26,19 +25,41 @@ mod types;
 
 use types::*;
 
+mod texture;
 mod vertex_data;
+mod uniform_data;
 mod program;
 mod buffer;
 
 pub use vertex_data::VertexData;
+pub use uniform_data::UniformData;
 pub use program::Program;
 pub use buffer::Buffer;
+pub use texture::Texture;
 
-/// An GPU Texture handle.
-#[derive(Copy, Clone)] pub struct Texture(u32);
+/// Features that can be enabled and disabled.
+#[repr(u32)]
+pub enum Feature {
+	Dither = 0x0BD0,
+	CullFace = 0x0B44,
+	Blend = 0x0BE2,
+	DepthTest = 0x0B71,
+}
 
+/// What the vertices represent
+#[repr(u32)]
+pub enum Topology {
+	Points = 0x0000,
+	Lines = 0x0001,
+	LineLoop = 0x0002,
+	LineStrip = 0x0003,
+	Triangles = 0x0004,
+	TriangleStrip = 0x0005,
+	TriangleFan = 0x0006,
+}
+
+/// The OpenGL context.
 #[derive(Clone)] pub struct OpenGL(Rc<RefCell<OpenGLContext>>);
-pub struct Shader(Rc<(OpenGL, u32)>);
 
 /// The OpenGL builder.
 pub struct OpenGLBuilder {
@@ -110,6 +131,7 @@ impl OpenGLBuilder {
 			detach_shader: self.lib.load(b"glDetachShader\0"),
 			delete_program: self.lib.load(b"glDeleteProgram\0"),
 			delete_buffer: self.lib.load(b"glDeleteBuffers\0"),
+			delete_texture: self.lib.load(b"glDeleteTextures\0"),
 			// Other
 			display: self.display,
 			lib: self.lib,
@@ -118,7 +140,7 @@ impl OpenGLBuilder {
 }
 
 /// The OpenGL context.
-pub struct OpenGLContext {
+struct OpenGLContext {
 	#[allow(unused)] // is used at drop.
 	lib: loader::Lib,
 	display: loader::Display,
@@ -174,6 +196,7 @@ pub struct OpenGLContext {
 	detach_shader: unsafe extern "system" fn(GLuint, GLuint) -> (),
 	delete_program: unsafe extern "system" fn(GLuint) -> (),
 	delete_buffer: unsafe extern "system" fn(GLsizei, *const GLuint) -> (),
+	delete_texture: unsafe extern "system" fn(GLsizei, *const GLuint) -> (),
 }
 
 impl OpenGL {
@@ -193,16 +216,14 @@ impl OpenGL {
 		gl!(self, (self.get().clear)(0x00000100 | 0x00004000));
 	}
 
-	// TODO: what should be an enum for safety.
 	/// Enable something
-	pub fn enable(&self, what: u32) {
-		gl!(self, (self.get().enable)(what))
+	pub fn enable(&self, what: Feature) {
+		gl!(self, (self.get().enable)(what as u32))
 	}
 
-	// TODO: what should be an enum for safety.
 	/// Disable something
-	pub fn disable(&self, what: u32) {
-		gl!(self, (self.get().disable)(what))
+	pub fn disable(&self, what: Feature) {
+		gl!(self, (self.get().disable)(what as u32))
 	}
 
 	/// Configure blending
@@ -219,112 +240,9 @@ impl OpenGL {
 		));
 	}
 
-	/// Get uniform from a shader.
-	pub fn uniform(&self, program: &Program, name: &[u8]) -> i32 {
-		// Last character in slice needs to null for it to be safe.
-		assert_eq!(name[name.len() -1], b'\0');
-		let r = gl!(self, (self.get().uniform)(program.get(),
-			name.as_ptr() as *const _));
-		if r == -1 {
-			panic!("Error No Uniform: {:?}",
-				::std::str::from_utf8(name).unwrap());
-		}
-		r
-	}
-
-	/// Bind a buffer from `new_buffers()`
-	pub fn bind_buffer(&self, buffer: &Buffer) {
-		// TODO: Check if it's already bound first.
-		gl!(self, (self.get().bind_buffer)(GL_ARRAY_BUFFER,
-			buffer.get()));
-	}
-
-	/// Set the bound buffer's data
-	pub fn set_buffer<T>(&self, data: &[T]) {
-		gl!(self, (self.get().buffer_data)(GL_ARRAY_BUFFER,
-			(data.len() * mem::size_of::<T>()) as isize,
-			data.as_ptr() as *const _, GL_DYNAMIC_DRAW));
-	}
-
-	// TODO: this actually unsafe because uniforms can only be accessed when
-	// their program is in use.
-	/// Use a program.
-	pub fn use_program(&self, program: &Program) {
-		gl!(self, (self.get().use_program)(program.get()));
-	}
-
-	/// Set a mat4 uniform
-	pub fn set_mat4(&self, uniform: i32, mat4: &[f32; 16]) -> () {
-		gl!(self, (self.get().uniform_mat4)(uniform, 1,
-			0 /*bool: transpose*/, mat4.as_ptr()));
-	}
-
-	/// Set an int uniform 
-	pub fn set_int1(&self, uniform: i32, int1: i32) -> () {
-		gl!(self, (self.get().uniform_int1)(uniform, int1));
-	}
-
-	/// Set a float uniform
-	pub fn set_vec1(&self, uniform: i32, vec1: f32) -> () {
-		gl!(self, (self.get().uniform_vec1)(uniform, vec1));
-	}
-
-	/// Set a vec2 uniform
-	pub fn set_vec2(&self, uniform: i32, vec: &[f32; 2]) -> () {
-		gl!(self, (self.get().uniform_vec2)(uniform, vec[0], vec[1]));
-	}
-
-	/// Set a vec3 uniform
-	pub fn set_vec3(&self, uniform: i32, vec: &[f32; 3]) -> () {
-		gl!(self, (self.get().uniform_vec3)(uniform, vec[0], vec[1],
-			vec[2]));
-	}
-
-	/// Set a vec4 uniform
-	pub fn set_vec4(&self, uniform: i32, vec: &[f32; 4]) -> () {
-		gl!(self, (self.get().uniform_vec4)(uniform, vec[0], vec[1],
-			vec[2], vec[3]));
-	}
-
-	/// Draw the elements.
-	pub fn draw_arrays(&self, start_index: u32, n_indices: u32) {
-		gl!(self, (self.get().draw_arrays)(0x0006 /*GL_TRIANGLE_FAN*/,
-			start_index as GLint, n_indices as GLsizei));
-	}
-
 	/// Create a new texture.
-	pub fn new_texture(&self) -> Texture {
-		Texture({
-			let mut a = unsafe { mem::uninitialized() };
-			gl!(self, (self.get().gen_textures)(1, &mut a));
-			self.use_texture(&Texture(a));
-			gl!(self, (self.get().tex_params)(GL_TEXTURE_2D,
-				GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-			gl!(self, (self.get().tex_params)(GL_TEXTURE_2D,
-				GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
-			);
-			a
-		})
-	}
-
-	/// Set the bound texture's pixels
-	pub fn set_texture(&self, w: u32, h: u32, px: &[u32]) -> () {
-		gl!(self, (self.get().tex_image)(GL_TEXTURE_2D, 0,
-			GL_RGBA as i32, w as i32, h as i32, 0, GL_RGBA,
-			GL_UNSIGNED_BYTE, px.as_ptr() as *const _));
-		gl!(self, (self.get().gen_mipmap)(GL_TEXTURE_2D));
-	}
-
-	/// Update the pixels of an already bound & set texture.
-	pub fn texture_update(&self, w: u32, h: u32, px: &[u32]) -> () {
-		gl!(self, (self.get().tex_subimage)(GL_TEXTURE_2D, 0, 0, 0,
-			w as i32, h as i32, GL_RGBA, GL_UNSIGNED_BYTE,
-			px.as_ptr() as *const _));
-	}
-
-	/// Use a texture.
-	pub fn use_texture(&self, texture: &Texture) {
-		gl!(self, (self.get().bind_texture)(GL_TEXTURE_2D, texture.0));
+	pub fn texture(&self) -> Texture {
+		Texture::new(self)
 	}
 
 	/// Update the viewport.

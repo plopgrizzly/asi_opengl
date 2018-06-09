@@ -8,11 +8,10 @@ Rust safe bindings for OpenGL / OpenGLES
 
 ## Features
 **asi_opengl**'s current features:
-* Somewhat safe OpenGL/ES bindings
+* Safe OpenGL/ES bindings
 
 **asi_opengl**'s planned features:
-* Totally safe OpenGL/ES bindings
-* Speed enchancements: Like checking whether or not a uniform in a shader is already set to the value we're trying to set (stored in shader struct).
+* Use `awi` as dependency to create window.
 
 ## Support
 **asi_opengl**'s current support:
