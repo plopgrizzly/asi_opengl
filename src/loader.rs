@@ -6,17 +6,16 @@ use std::{ mem, ptr };
 use types::*;
 
 #[cfg(windows)]
-use winapi::shared::ntdef::{ LPCSTR };
-// use winapi::shared::windef::HDC;
-#[cfg(windows)]
-use winapi::shared::minwindef::{ BOOL/*, FLOAT, UINT*/ };
+use winapi::shared::{
+	ntdef::LPCSTR,
+	minwindef::BOOL,
+};
 
 #[cfg(windows)]
 dl_api!(WinOpenGL, "opengl32.dll",
 	fn wglGetProcAddress(LPCSTR) -> *mut c_void,
 	fn wglCreateContext(*mut c_void) -> *mut c_void,
 	fn wglMakeCurrent(*mut c_void, *mut c_void) -> BOOL
-//	fn wglChoosePixelFormat(HDC, *const i32, *const FLOAT, UINT, *mut i32, *mut UINT) -> BOOL
 );
 
 #[cfg(not(windows))]
@@ -78,7 +77,7 @@ impl Display {
 	// Swap surface with screen buffer.
 	pub fn swap(&self, lib: &Lib) {
 		if unsafe {
-			(lib.egl.eglSwapBuffers)(self.display,
+			(lib.gl.eglSwapBuffers)(self.display,
 				self.surface.unwrap().as_ptr())
 		} == 0 {
 			panic!("Swapping Failed");
@@ -88,36 +87,18 @@ impl Display {
 
 pub struct Lib {
 	#[cfg(not(windows))]
-	egl: UnixEGL,
+	gl: UnixEGL,
 	#[cfg(windows)]
-	wgl: WinOpenGL,
+	gl: WinOpenGL,
 }
 
 impl Lib {
-	#[cfg(windows)]
 	/// Load the OpenGL libary.  `None` if can't find it.
-	pub fn new() -> Option<Self> {
-		let wgl = WinOpenGL::new();
+	pub fn new() -> Result<Self, ::dl_api::Error> {
+		#[cfg(windows)] type Gl = WinOpenGL;
+		#[cfg(not(windows))] type Gl = UnixEGL;
 
-		if wgl.is_err() {
-			None
-		} else {
-			let wgl = wgl.unwrap(); // is Ok
-			Some(Lib { wgl })
-		}
-	}
-
-	#[cfg(not(windows))]
-	/// Load the OpenGL libary.  `None` if can't find it.
-	pub fn new() -> Option<Self> {
-		let egl = UnixEGL::new();
-
-		if egl.is_err() {
-			None
-		} else {
-			let egl = egl.unwrap(); // isn't None
-			Some(Lib { egl })
-		}
+		Ok(Lib { gl: Gl::new()? })
 	}
 
 	/// Initialize the opengl (connect to the display)
@@ -132,14 +113,14 @@ impl Lib {
 	#[cfg(not(windows))]
 	pub fn init(&self) -> (Display, i32) {
 		let display = unsafe {
-			(self.egl.eglGetDisplay)(ptr::null_mut())
+			(self.gl.eglGetDisplay)(ptr::null_mut())
 		};
 		if display.is_null() {
 			panic!("EGL: Couldn't load display.");
 		}
 
 		if unsafe {
-			(self.egl.eglInitialize)(display, ptr::null_mut(),
+			(self.gl.eglInitialize)(display, ptr::null_mut(),
 				ptr::null_mut())
 		} == 0 {
 			panic!("Couldn't initialize EGL");
@@ -150,13 +131,11 @@ impl Lib {
 		let mut nconfigs = unsafe { mem::uninitialized() };
 
 		if unsafe {
-			(self.egl.eglChooseConfig)(display, [
+			(self.gl.eglChooseConfig)(display, [
 				EGL_RED_SIZE, 8,
 				EGL_GREEN_SIZE, 8,
 				EGL_BLUE_SIZE, 8,
 				EGL_DEPTH_SIZE, 24,
-				EGL_SAMPLE_BUFFERS, 1,
-				EGL_SAMPLES, 8,
 				EGL_NONE
 			].as_ptr(), &mut config, 1, &mut nconfigs)
 		} == 0 {
@@ -167,13 +146,13 @@ impl Lib {
 			panic!("No configs!");
 		}
 
-		if unsafe { (self.egl.eglBindAPI)(EGL_OPENGL_ES_API) } == 0 {
+		if unsafe { (self.gl.eglBindAPI)(EGL_OPENGL_ES_API) } == 0 {
 			panic!("Couldn't bind OpenGLES");
 		}
 
 		// Create an EGL rendering context.
 		let context = unsafe {
-			(self.egl.eglCreateContext)(display, config,
+			(self.gl.eglCreateContext)(display, config,
 				ptr::null_mut(),
 				[EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE]
 					.as_ptr()
@@ -189,7 +168,7 @@ impl Lib {
 		// Get visual id
 		let mut visual_id = unsafe { mem::uninitialized() };
 		if unsafe {
-			(self.egl.eglGetConfigAttrib)(display, config,
+			(self.gl.eglGetConfigAttrib)(display, config,
 				EGL_NATIVE_VISUAL_ID, &mut visual_id)
 		} == 0 {
 			panic!("couldn't get visual id");
@@ -233,26 +212,10 @@ impl Lib {
 		};
 		
 		unsafe {
-//			let mut format_count = 0;
-		
-//			// TODO: wglChoosePixelFormat, for multisampling(8) on Windows.
-//			(self.wgl.wglChoosePixelFormat)(dc as *mut _ as *mut _, [
-//				0x2010 /*WGL_SUPPORT_OPENGL_ARB*/, 1,
-//				0x2001 /*WGL_DRAW_TO_WINDOW_ARB*/, 1,
-//				0x2003 /*WGL_ACCELERATION_ARB*/, 0x2027 /*WGL_FULL_ACCELERATION_ARB*/,
-//				0x2014 /*WGL_COLOR_BITS_ARB*/, 24,
-//				0x2022 /*WGL_DEPTH_BITS_ARB*/, 24,
-//				0x2011 /*WGL_DOUBLE_BUFFER_ARB*/, 1,
-//				0x2007 /*WGL_SWAP_METHOD_ARB*/, 0x2028 /*WGL_SWAP_EXCHANGE_ARB*/,
-//				0x2013 /*WGL_PIXEL_TYPE_ARB*/, 0x202B /*WGL_TYPE_RGBA_ARB*/,
-//				0x2023 /*WGL_STENCIL_BITS_ARB*/, 8,
-//				0
-//				].as_ptr(), ::std::ptr::null(), 1, &mut format, &mut format_count);
-			
 			SetPixelFormat(dc, format, &pixel_format);
 			
-			let context = (self.wgl.wglCreateContext)(dc);
-			(self.wgl.wglMakeCurrent)(dc, context);
+			let context = (self.gl.wglCreateContext)(dc);
+			(self.gl.wglMakeCurrent)(dc, context);
 		}
 	}
 
@@ -261,7 +224,7 @@ impl Lib {
 	pub fn init2(&self, display: &mut Display, window: EGLNativeWindowType){
 		// Create surface
 		let surface = unsafe {
-			(self.egl.eglCreateWindowSurface)(display.display,
+			(self.gl.eglCreateWindowSurface)(display.display,
 				display.config, window, ptr::null())
 		};
 
@@ -271,7 +234,7 @@ impl Lib {
 
 		// Connect context to surface
 		if unsafe {
-			(self.egl.eglMakeCurrent)(display.display, surface,
+			(self.gl.eglMakeCurrent)(display.display, surface,
 				surface, display.context)
 		} == 0 {
 			panic!("Couldn't make current");
@@ -292,7 +255,7 @@ impl Lib {
 	// Load an OpenGL 3 / OpenGLES 2 function.
 	pub fn load<T>(&self, name: &[u8]) -> T {
 		let fn_ptr: *const c_void = unsafe {
-			(self.egl.eglGetProcAddress)(name as *const _
+			(self.gl.eglGetProcAddress)(name as *const _
 				as *const i8)
 		};
 
@@ -305,12 +268,16 @@ impl Lib {
 	// Load an OpenGL 3 / OpenGLES 2 function.
 	pub fn load<T>(&self, name: &[u8]) -> T {
 		let fn_ptr: *const c_void = unsafe {
-			(self.wgl.wglGetProcAddress)(name as *const _ as LPCSTR)
+			(self.gl.wglGetProcAddress)(name as *const _ as LPCSTR)
 		};
 		
 		if fn_ptr.is_null() {
 			if let Ok(n) = unsafe {
-				self.wgl.__lib.symbol_cstr(::std::ffi::CStr::from_bytes_with_nul(name).unwrap())
+				self.gl.__lib.symbol_cstr(
+					::std::ffi::CStr::from_bytes_with_nul(
+						name
+					).unwrap()
+				)
 			} {
 				return n;
 			} else {
