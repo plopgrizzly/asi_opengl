@@ -1,5 +1,4 @@
-# "asi_opengl" crate - Licensed under the MIT LICENSE
-#  * Copyright (c) 2018  Jeron A. Lau <jeron.lau@plopgrizzly.com>
+# "asi_opengl" - Aldaron's System Interface - OpenGL
 #                             _        _
 #                            /@\——————/@\
 # .———  .                   |   o    o   |     .————      .            .
@@ -10,29 +9,27 @@
 # |     |   ———   |       |                |    ————  |   | :——— :———  |   |
 #                 |        \              /                              __/
 #                           ¯————————————¯
+#
+# Copyright Jeron A. Lau 2018.
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# https://www.boost.org/LICENSE_1_0.txt)
 
 [package]
 name = "asi_opengl"
-version = "0.4.0"
+version = "0.5.0"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]
-
-license = "MIT"
+license = "BSL-1.0"
 documentation = "https://docs.rs/asi_opengl"
-homepage = "http://plopgrizzly.com/asi_opengl"
+homepage = "https://plopgrizzly.com/asi_opengl"
 repository = "https://github.com/plopgrizzly/asi_opengl"
-
 readme = "readme.md"
 description = "Rust safe bindings for OpenGL / OpenGLES."
-keywords = ["opengl", "opengl-es"]
+keywords = ["opengl", "opengl-es", "opengles"]
 categories = ["rendering::graphics-api", "hardware-support",
 	"api-bindings", "rendering", "external-ffi-bindings"]
-
-exclude = [
-	"examples/*", "CODE_OF_CONDUCT.md", "CONTRIBUTING.md", ".gitignore",
-	"_config.yml", "ISSUE_TEMPLATE.md", "icon.png", "icon.ico"
-]
 
 [dependencies]
 dl_api = "0.1"

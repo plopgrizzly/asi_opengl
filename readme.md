@@ -1,29 +1,32 @@
-# Aldaron's System Interface / OpenGL
-
+# [Aldaron's System Interface / OpenGL](https://crates.io/crates/asi_opengl)
 Rust safe bindings for OpenGL / OpenGLES
 
-[Cargo](https://crates.io/crates/asi_opengl) /
-[Documentation](https://docs.rs/asi_opengl) /
-[Change Log](http://plopgrizzly.com/asi_opengl/changelog.html)
-
 ## Features
-**asi_opengl**'s current features:
-* Safe OpenGL/ES bindings
+* Safe OpenGL/ES bindings (Works on both Linux (through XCB) and Windows)
 
-**asi_opengl**'s planned features:
+## [Contributing](http://plopgrizzly.com/contributing/en#contributing)
+
+## Roadmap to 1.0 (Future Features)
 * Use `awi` as dependency to create window.
+* Support Android
+* Support Wayland
 
-## Support
-**asi_opengl**'s current support:
-* EGL/OpenGLES with XCB
-* WGL/OpenGL on Windows
+## Change Log
+## 0.5
+* `set_mat4` no longer takes a reference to the matrix.
 
-**asi_opengl**'s planned support:
-* EGL/OpenGLES with Wayland
-* EGL/OpenGLES on Android
-* MacOS
+## 0.4
+* Safe API
+* Use LINEAR instead of NEAREST for texturing.
+* Use mipmapping to speed up drawing big textures in small areas.
 
-# Contributing
-If you'd like to help implement functions for unsupported platforms, fix bugs,
-improve the API or improve the Documentation, then contact me at
-jeron.lau@plopgrizzly.com. I'll appreciate any help.
+## 0.3
+* Uses sliced triangle fans now.
+
+## 0.2
+* Support for OpenGL on Linux actually works now.
+
+## 0.1
+* Initial release
+
+## Developed by [Plop Grizzly](http://plopgrizzly.com)
