@@ -17,7 +17,7 @@
 
 [package]
 name = "asi_opengl"
-version = "0.5.0"
+version = "0.5.1"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]
@@ -32,7 +32,7 @@ categories = ["rendering::graphics-api", "hardware-support",
 	"api-bindings", "rendering", "external-ffi-bindings"]
 
 [dependencies]
-dl_api = "0.1"
+dl_api = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 winapi = "0.3"
