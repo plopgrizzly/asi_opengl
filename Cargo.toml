@@ -18,7 +18,7 @@ version = "0.6.0"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]
-license = "MIT OR BSL-1.0"
+license = "MIT / BSL-1.0"
 documentation = "https://docs.rs/asi_opengl"
 homepage = "https://gitlab.com/plopgrizzly/adi/"
 repository = "https://gitlab.com/plopgrizzly/adi/asi_opengl"

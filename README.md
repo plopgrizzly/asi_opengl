@@ -1,14 +1,4 @@
-```
-XXXX  X                    /5\——————/5\       XXXX      X           X
-X   X X   XXX   XXXX      |   0    0   |     X      XXX   XXXX XXXX X X   X
-X   X X  X   X  X   X  /"\|     <>     |/"\  X      X   X    X    X X X   X
-XXXX  X  X   X  X   X  \  \\_  ====  _//  /  X   XX X   X   X    X  X  X X
-X     X  X   X  XXXX    \_              _/   X    X X   X  X    X   X   X
-X     X   XXX   X       / \            / \    XXXX  X   X XXXX XXXX X   X
-                X       \                /                            XX
-                         --____________--
-```
-[Plop Grizzly](https://plopgrizzly.com)
+[![Plop Grizzly](https://plopgrizzly.com/images/logo-bar.png)](https://plopgrizzly.com)
 
 # [Aldaron's System Interface / OpenGL](https://crates.io/crates/asi_opengl)
 Rust safe bindings for OpenGL / OpenGLES
