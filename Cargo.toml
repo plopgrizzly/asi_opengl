@@ -14,7 +14,7 @@
 
 [package]
 name = "asi_opengl"
-version = "0.6.1"
+version = "0.6.2"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]

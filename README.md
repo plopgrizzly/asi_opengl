@@ -1,14 +1,12 @@
 [![Plop Grizzly](https://plopgrizzly.com/images/logo-bar.png)](https://plopgrizzly.com)
 
 # [Aldaron's System Interface / OpenGL](https://crates.io/crates/asi_opengl)
-Rust safe bindings for OpenGL / OpenGLES
+Rust safe bindings for OpenGL / OpenGLES.
+
+This project is part of [ADI](https://crates.io/crates/adi).
 
 ## Features
-* Safe OpenGL/ES bindings (Works on both Linux (through XCB) and Windows)
-
-## [Contributing](http://plopgrizzly.com/contributing/en#contributing)
-This project is part of [ADI](https://crates.io/crates/adi).  See ADI's
-README for more details.
+* Safe OpenGL/ES bindings (Works on both Linux (through XCB) and Windows).
 
 ## Roadmap to 1.0 (Future Features)
 * Make part of `awi`.
