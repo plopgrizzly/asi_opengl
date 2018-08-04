@@ -1,31 +1,28 @@
-# "asi_opengl" - Aldaron's System Interface - OpenGL
-#                             _        _
-#                            /@\——————/@\
-# .———  .                   |   o    o   |     .————      .            .
-# |   | |  .———   .———   .——.     []     .——.  |      .——    ———: ———: | .   .
-# |   | |  |   |  |   |  \   \   <##>   /   /  |      |   |    /    /  | |   |
-# |———  |  |   |  |   |   |   ¯        ¯   |   |   -- |   |   /    /   |  \ /
-# |     |  |   |  |———    |                |   |    | |   |  /    /    |   |
-# |     |   ———   |       |                |    ————  |   | :——— :———  |   |
-#                 |        \              /                              __/
-#                           ¯————————————¯
-#
 # Copyright Jeron A. Lau 2018.
-# Distributed under the Boost Software License, Version 1.0.
-# (See accompanying file LICENSE_1_0.txt or copy at
+# Dual-licensed under either the MIT License or the Boost Software License,
+# Version 1.0.  (See accompanying file LICENSE_1_0.txt or copy at
 # https://www.boost.org/LICENSE_1_0.txt)
+#
+# XXXX  X                    /5\——————/5\       XXXX      X           X
+# X   X X   XXX   XXXX      |   0    0   |     X      XXX   XXXX XXXX X X   X
+# X   X X  X   X  X   X  /"\|     <>     |/"\  X      X   X    X    X X X   X
+# XXXX  X  X   X  X   X  \  \\_  ====  _//  /  X   XX X   X   X    X  X  X X
+# X     X  X   X  XXXX   /"\              /"\  X    X X   X  X    X   X   X
+# X     X   XXX   X      \  \            /  /   XXXX  X   X XXXX XXXX X   X
+#                 X       \                /                            XX
+#                          \______________/
 
 [package]
 name = "asi_opengl"
-version = "0.5.1"
+version = "0.6.0"
 authors = [
 	"Jeron A. Lau <jeron.lau@plopgrizzly.com>"
 ]
-license = "BSL-1.0"
+license = "MIT OR BSL-1.0"
 documentation = "https://docs.rs/asi_opengl"
-homepage = "https://plopgrizzly.com/asi_opengl"
-repository = "https://github.com/plopgrizzly/asi_opengl"
-readme = "readme.md"
+homepage = "https://gitlab.com/plopgrizzly/adi/"
+repository = "https://gitlab.com/plopgrizzly/adi/asi_opengl"
+readme = "README.md"
 description = "Rust safe bindings for OpenGL / OpenGLES."
 keywords = ["opengl", "opengl-es", "opengles"]
 categories = ["rendering::graphics-api", "hardware-support",

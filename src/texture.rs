@@ -1,8 +1,6 @@
-// "asi_opengl" - Aldaron's System Interface - OpenGL
-//
 // Copyright Jeron A. Lau 2018.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
+// Dual-licensed under either the MIT License or the Boost Software License,
+// Version 1.0.  (See accompanying file LICENSE_1_0.txt or copy at
 // https://www.boost.org/LICENSE_1_0.txt)
 
 use std::{ rc::Rc };
@@ -30,7 +28,7 @@ impl Texture {
 	}
 
 	/// Set the bound texture's pixels
-	pub fn set(&self, w: u32, h: u32, px: &[u32]) -> () {
+	pub fn set(&self, w: u16, h: u16, px: &[u8]) -> () {
 		self.bind();
 		gl!((*self.0).1, ((*self.0).1.get().tex_image)(GL_TEXTURE_2D, 0,
 			GL_RGBA as i32, w as i32, h as i32, 0, GL_RGBA,
@@ -39,7 +37,7 @@ impl Texture {
 	}
 
 	/// Update the pixels of an already bound & set texture.
-	pub fn update(&self, w: u32, h: u32, px: &[u32]) -> () {
+	pub fn update(&self, w: u16, h: u16, px: &[u8]) -> () {
 		self.bind();
 		gl!((*self.0).1, ((*self.0).1.get().tex_subimage)(GL_TEXTURE_2D,
 			0, 0, 0, w as i32, h as i32, GL_RGBA, GL_UNSIGNED_BYTE,

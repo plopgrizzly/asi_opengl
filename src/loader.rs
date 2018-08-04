@@ -1,8 +1,6 @@
-// "asi_opengl" - Aldaron's System Interface - OpenGL
-//
 // Copyright Jeron A. Lau 2018.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
+// Dual-licensed under either the MIT License or the Boost Software License,
+// Version 1.0.  (See accompanying file LICENSE_1_0.txt or copy at
 // https://www.boost.org/LICENSE_1_0.txt)
 
 use c_void;
@@ -38,7 +36,8 @@ dl_api!(UnixEGL, "libEGL.so.1",
 	fn eglCreateWindowSurface(EGLDisplay, EGLConfig, EGLNativeWindowType,
 		*const EGLint) -> EGLSurface,
 	fn eglMakeCurrent(EGLDisplay, EGLSurface, EGLSurface, EGLContext)
-		-> EGLBoolean
+		-> EGLBoolean,
+	fn eglSwapInterval(EGLDisplay, EGLint) -> EGLBoolean
 );
 
 #[cfg(windows)]
@@ -243,6 +242,9 @@ impl Lib {
 		} == 0 {
 			panic!("Couldn't make current");
 		}
+
+		// Synchronize buffer swaps to monitor refresh rate.
+		unsafe { (self.gl.eglSwapInterval)(display.display, 1) };
 
 		// Guaranteed to be `Some` because of conditional panic above.
 		display.surface = ptr::NonNull::new(surface);

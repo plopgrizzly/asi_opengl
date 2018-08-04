@@ -1,8 +1,6 @@
-// "asi_opengl" - Aldaron's System Interface - OpenGL
-//
 // Copyright Jeron A. Lau 2018.
-// Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE_1_0.txt or copy at
+// Dual-licensed under either the MIT License or the Boost Software License,
+// Version 1.0.  (See accompanying file LICENSE_1_0.txt or copy at
 // https://www.boost.org/LICENSE_1_0.txt)
 
 #[macro_use]
@@ -48,6 +46,7 @@ pub enum Feature {
 	CullFace = 0x0B44,
 	Blend = 0x0BE2,
 	DepthTest = 0x0B71,
+	StencilTest = 0x0B90,
 }
 
 /// What the vertices represent
@@ -136,6 +135,8 @@ impl OpenGLBuilder {
 			delete_program: self.lib.load(b"glDeleteProgram\0"),
 			delete_buffer: self.lib.load(b"glDeleteBuffers\0"),
 			delete_texture: self.lib.load(b"glDeleteTextures\0"),
+			stencil_op: self.lib.load(b"glStencilOp\0"),
+			stencil_func: self.lib.load(b"glStencilFunc\0"),
 			// Other
 			display: self.display,
 			lib: self.lib,
@@ -201,6 +202,8 @@ struct OpenGLContext {
 	delete_program: unsafe extern "system" fn(GLuint) -> (),
 	delete_buffer: unsafe extern "system" fn(GLsizei, *const GLuint) -> (),
 	delete_texture: unsafe extern "system" fn(GLsizei, *const GLuint) -> (),
+	stencil_op: unsafe extern "system" fn(GLenum, GLenum, GLenum) -> (),
+	stencil_func: unsafe extern "system" fn(GLenum, GLint, GLuint) -> (),
 }
 
 impl OpenGL {
@@ -244,15 +247,27 @@ impl OpenGL {
 		));
 	}
 
+	/// Configure stencil testing
+	pub fn stencil(&self) {
+		gl!(self, (self.get().stencil_op)(
+			0x150A, 0x150A, 0x150A // GL_INVERT
+		));
+
+		gl!(self, (self.get().stencil_func)(
+			0x0205, // GL_NOTEQUAL
+			0, // ≠ 0
+			0xffffffff // Mask
+		));
+	}
+
 	/// Create a new texture.
 	pub fn texture(&self) -> Texture {
 		Texture::new(self)
 	}
 
 	/// Update the viewport.
-	pub fn viewport(&self, w: u32, h: u32) {
-		gl!(self, (self.get().viewport)(0, 0, w as GLsizei,
-			h as GLsizei));
+	pub fn viewport(&self, w: u16, h: u16) {
+		gl!(self, (self.get().viewport)(0,0,w as GLsizei,h as GLsizei));
 	}
 
 	#[cfg(not(debug_assertions))]
